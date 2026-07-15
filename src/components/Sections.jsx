@@ -74,25 +74,26 @@ export function Hero({ lenisRef, ready }) {
   // Intro choreography — runs once the preloader hands off.
   useEffect(() => {
     if (!ready || !root.current) return
+    const heroRoot = root.current
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: 'expo.out' } })
-      tl.from('.hero .eyebrow', { y: 24, opacity: 0, duration: 0.8 })
+      tl.from(heroRoot.querySelector('.eyebrow'), { y: 24, opacity: 0, duration: 0.8 })
         .from(
-          '.hero .word',
+          heroRoot.querySelectorAll('.word'),
           { yPercent: 115, duration: 1.1, stagger: 0.06 },
           '-=0.5'
         )
-        .from('.hero-sub', { y: 24, opacity: 0, duration: 0.9 }, '-=0.7')
-        .from('.hero-actions', { y: 24, opacity: 0, duration: 0.9 }, '-=0.7')
-        .from('.scroll-hint', { opacity: 0, duration: 0.8 }, '-=0.4')
+        .from(heroRoot.querySelector('.hero-sub'), { y: 24, opacity: 0, duration: 0.9 }, '-=0.7')
+        .from(heroRoot.querySelector('.hero-actions'), { y: 24, opacity: 0, duration: 0.9 }, '-=0.7')
+        .from(heroRoot.querySelector('.scroll-hint'), { opacity: 0, duration: 0.8 }, '-=0.4')
 
       // Parallax: hero content drifts up + fades as you scroll away.
-      gsap.to('.hero-inner', {
+      gsap.to(heroRoot.querySelector('.hero-inner'), {
         yPercent: -18,
         opacity: 0.15,
         ease: 'none',
         scrollTrigger: {
-          trigger: '.hero',
+          trigger: heroRoot,
           start: 'top top',
           end: 'bottom top',
           scrub: true,
