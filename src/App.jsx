@@ -18,8 +18,12 @@ import { useSmoothScroll } from './hooks/useSmoothScroll'
 import { scrollStore } from './three/scrollStore'
 import { marqueeWords } from './content'
 
-export default function App() {
-  const [ready, setReady] = useState(false) // becomes true when intro finishes
+const hasPrerenderedHtml = () =>
+  typeof document !== 'undefined' &&
+  document.getElementById('root')?.dataset.prerendered === 'true'
+
+export default function App({ prerender = false }) {
+  const [ready, setReady] = useState(prerender || hasPrerenderedHtml()) // becomes true when intro finishes
 
   // Smooth scroll only after the intro completes.
   const lenisRef = useSmoothScroll(ready)
@@ -47,7 +51,7 @@ export default function App() {
 
   return (
     <>
-      {!ready && <Preloader onDone={() => setReady(true)} />}
+      {!ready && !prerender && <Preloader onDone={() => setReady(true)} />}
 
       <Cursor />
       <ScrollProgress />
