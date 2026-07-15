@@ -45,6 +45,8 @@ The generated output includes prerendered pages such as `/about/`, `/services/`,
 
 This site is intended for Vercel static deployment. The included `vercel.json` allows cross-origin asset loading and iframe embedding from HexTorq domains so the portfolio mix website can preload and display this template.
 
+The frame policy explicitly allows the production mix domains `https://hextorq.tech`, `https://www.hextorq.tech`, and HexTorq subdomains. After changing `vercel.json`, redeploy the Vercel project so the new response headers are applied in production.
+
 ## Content Editing
 
 Most public-facing content is in `src/content.js`. Update that file for company description, stats, product descriptions, process steps, social links, footer links, and contact details.
