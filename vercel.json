@@ -25,7 +25,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "frame-ancestors 'self' https://*.hextorq.tech http://localhost:5177;"
+          "value": "frame-ancestors 'self' https://hextorq.tech https://www.hextorq.tech https://*.hextorq.tech http://localhost:5177;"
         }
       ]
     }
