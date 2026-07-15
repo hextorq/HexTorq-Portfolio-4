@@ -1,7 +1,14 @@
+import { useEffect, useState } from 'react'
 import { templateUrls, normalizePath } from '../routeUtils'
 
 export default function TemplateSwitcher() {
-  if (typeof window === 'undefined') return null
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted || typeof window === 'undefined') return null
 
   const urls = templateUrls()
   const currentOrigin = window.location.origin.replace(/\/$/, '')
