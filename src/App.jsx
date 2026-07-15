@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import Preloader from './components/Preloader'
 import Navbar from './components/Navbar'
 import Cursor from './components/Cursor'
+import TemplateSwitcher from './components/TemplateSwitcher'
 import { ScrollProgress, Marquee } from './components/Chrome'
 import Scene from './three/Scene'
 import {
@@ -17,6 +18,7 @@ import {
 import { useSmoothScroll } from './hooks/useSmoothScroll'
 import { scrollStore } from './three/scrollStore'
 import { marqueeWords } from './content'
+import { currentSectionFromPath, scrollToSection } from './routeUtils'
 
 const hasPrerenderedHtml = () =>
   typeof document !== 'undefined' &&
@@ -49,12 +51,24 @@ export default function App({ prerender = false }) {
     }
   }, [ready])
 
+  useEffect(() => {
+    if (!ready || prerender) return
+    const scrollToCurrentRoute = () => {
+      const section = currentSectionFromPath()
+      if (section) window.setTimeout(() => scrollToSection(section, lenisRef), 80)
+    }
+    scrollToCurrentRoute()
+    window.addEventListener('popstate', scrollToCurrentRoute)
+    return () => window.removeEventListener('popstate', scrollToCurrentRoute)
+  }, [ready, prerender, lenisRef])
+
   return (
     <>
       {!ready && !prerender && <Preloader onDone={() => setReady(true)} />}
 
       <Cursor />
       <ScrollProgress />
+      <TemplateSwitcher />
 
       {/* Fixed WebGL background */}
       <Scene />

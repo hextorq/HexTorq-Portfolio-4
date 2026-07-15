@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { brand, nav } from '../content'
+import { pushRouteForSection, scrollToSection } from '../routeUtils'
 import './Navbar.css'
 
 /**
@@ -19,10 +20,8 @@ export default function Navbar({ lenisRef }) {
 
   const go = (target) => {
     setOpen(false)
-    const el = document.getElementById(target)
-    if (!el) return
-    if (lenisRef?.current) lenisRef.current.scrollTo(el, { offset: -20, duration: 1.4 })
-    else el.scrollIntoView({ behavior: 'smooth' })
+    pushRouteForSection(target)
+    scrollToSection(target, lenisRef)
   }
 
   return (
