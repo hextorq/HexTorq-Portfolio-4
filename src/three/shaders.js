@@ -2,14 +2,14 @@
  * ─────────────────────────────────────────────────────────────
  *  GLSL SHADERS
  * ─────────────────────────────────────────────────────────────
- *  Custom shaders for the futuristic scene:
+ *  Custom shaders for the futuristic 3D WebGL scene:
  *   - snoise: Ashima 3D simplex noise (shared chunk)
- *   - sky:    inside-out nebula background sphere
- *   - orb:    displaced, fresnel-lit energy core
+ *   - sky:    inside-out animated nebula background sphere
+ *   - knot:   morphing torus knot with vertex noise
  * ─────────────────────────────────────────────────────────────
  */
 
-/* Classic Ashima simplex noise — well-known, compiles everywhere. */
+/* Classic Ashima simplex noise */
 export const snoise = /* glsl */ `
 vec3 mod289(vec3 x){return x - floor(x * (1.0/289.0)) * 289.0;}
 vec4 mod289(vec4 x){return x - floor(x * (1.0/289.0)) * 289.0;}
@@ -59,10 +59,7 @@ float snoise(vec3 v){
 }
 `
 
-/* ── GEOMETRIC PATTERN BACKGROUND (inside-out sphere) ───────────────
-     Renders tech/architectural geometry on jet black instead of
-     organic nebula clouds. Patterns include a wireframe grid,
-     hexagonal tessellation, concentric rings, and radial tech beams. ──*/
+/* ── NEBULA BACKGROUND (rendered on the inside of a big sphere) ── */
 export const skyVertex = /* glsl */ `
 varying vec3 vPos;
 void main() {
@@ -76,71 +73,81 @@ precision highp float;
 varying vec3 vPos;
 uniform float uTime;
 uniform float uScroll;
+${snoise}
 
-// ── Anti-aliased line helper ────────────────────────────────────
-float aastep(float width, float v) {
-  float d = fwidth(v);
-  return smoothstep(width - d, width + d, v);
+// Fractal brownian motion for soft, layered clouds.
+float fbm(vec3 p){
+  float v = 0.0;
+  v += 0.5000 * snoise(p); p *= 2.0;
+  v += 0.2500 * snoise(p); p *= 2.0;
+  v += 0.1250 * snoise(p); p *= 2.0;
+  v += 0.0625 * snoise(p);
+  return v;
+}
+
+// Lightweight 2-octave FBM for coordinate warping.
+float fbmWarp(vec3 p){
+  float v = 0.0;
+  v += 0.500 * snoise(p); p *= 2.0;
+  v += 0.250 * snoise(p);
+  return v;
 }
 
 void main(){
-  vec3 col = vec3(0.0);                       // jet black base
   vec3 dir = normalize(vPos);
+  vec3 q = dir * 1.7;
+  q.z += uTime * 0.05;
+  q.y += uScroll * 0.7;
 
-  // Spherical coordinates for pattern mapping.
-  float theta = atan(dir.z, dir.x);           // -PI..PI  longitude
-  float phi   = acos(dir.y);                  //  0..PI   latitude
+  // Domain-warped fbm → flowing aurora clouds.
+  float n = fbm(q + fbmWarp(q * 0.7 + uTime * 0.04));
+  n = n * 0.5 + 0.5;
 
-  // ── 1. Wireframe grid (lat/long lines) ───────────────────────
-  float gridLat = sin(phi * 22.0 + uTime * 0.008) * 0.5 + 0.5;
-  float gridLon = sin(theta * 16.0 + uTime * 0.006) * 0.5 + 0.5;
-  float grid    = aastep(0.94, gridLat) + aastep(0.94, gridLon);
+  // A second, slower layer for depth and motion.
+  float n2 = fbmWarp(q * 0.5 - vec3(uTime * 0.03, 0.0, 0.0));
+  n2 = n2 * 0.5 + 0.5;
 
-  // ── 2. Hexagonal tessellation ────────────────────────────────
-  float hx = theta * 7.0;
-  float hy = phi * 5.0;
-  float hexDist = max(
-    abs(sin(hx + sin(hy) * 0.5)),
-    abs(cos(hy + sin(hx) * 0.5))
-  );
-  float hexCells = aastep(0.82, hexDist);
-  float hexAnim = sin(uTime * 0.05 + hexDist * 4.0) * 0.5 + 0.5;
-  float hexPulse = aastep(0.70 + hexAnim * 0.18, hexDist);
+  // Three energy bands so sky glows softly.
+  float blueField   = smoothstep(0.30, 0.92, n);
+  float violetField = smoothstep(0.42, 1.00, mix(n, n2, 0.5));
+  float hot         = smoothstep(0.72, 1.00, n);
 
-  // ── 3. Concentric rings ──────────────────────────────────────
-  float ringsRaw = sin(phi * 14.0 - uTime * 0.04 + uScroll * 3.0);
-  float rings    = aastep(0.90, ringsRaw * 0.5 + 0.5);
+  // Scroll-driven palette sequence across section stops.
+  vec3 accentA, accentB;
+  float s = clamp(uScroll, 0.0, 1.0) * 4.0;
+  if (s < 1.0) {
+    float f = smoothstep(0.0, 1.0, s);
+    accentA = mix(vec3(0.24,0.42,1.0), vec3(0.36,0.30,1.0), f);   // blue→indigo
+    accentB = mix(vec3(0.49,0.36,0.93), vec3(0.55,0.28,0.95), f); // indigo→violet
+  } else if (s < 2.0) {
+    float f = smoothstep(0.0, 1.0, s - 1.0);
+    accentA = mix(vec3(0.36,0.30,1.0), vec3(0.62,0.26,0.95), f);  // indigo→violet
+    accentB = mix(vec3(0.55,0.28,0.95), vec3(0.95,0.30,0.72), f); // violet→magenta
+  } else if (s < 3.0) {
+    float f = smoothstep(0.0, 1.0, s - 2.0);
+    accentA = mix(vec3(0.62,0.26,0.95), vec3(0.13,0.72,0.86), f); // violet→teal
+    accentB = mix(vec3(0.95,0.30,0.72), vec3(0.24,0.50,1.0), f);  // magenta→blue
+  } else {
+    float f = smoothstep(0.0, 1.0, s - 3.0);
+    accentA = mix(vec3(0.13,0.72,0.86), vec3(0.24,0.42,1.0), f);  // teal→blue
+    accentB = mix(vec3(0.24,0.50,1.0), vec3(0.49,0.34,0.95), f);  // blue→violet
+  }
 
-  // ── 4. Radial tech beams ─────────────────────────────────────
-  float beamsRaw = sin(theta * 28.0 + uScroll * 5.0) * sin(phi * 8.0 + uScroll * 2.0);
-  float beams    = aastep(0.88, beamsRaw * 0.5 + 0.5);
+  vec3 uBaseCol = vec3(0.02, 0.03, 0.06);
+  vec3 col = uBaseCol;
+  col += accentA * blueField   * 0.95;
+  col += accentB * violetField * 1.05;
+  col += vec3(0.55, 0.68, 1.0) * hot * 0.6;
 
-  // ── 5. Scan-line pulse ───────────────────────────────────────
-  float scanY = sin(phi * 60.0 + uTime * 0.2) * 0.5 + 0.5;
-  float scan  = aastep(0.94, scanY);
+  // Soft central glow for depth
+  float centerGlow = pow(1.0 - abs(dir.y), 3.0);
+  col += mix(accentA, accentB, 0.5) * centerGlow * (0.18 + 0.25 * uScroll);
 
-  // ── Composite with scroll-driven density ──────────────────────
-  float density = 0.4 + uScroll * 0.6;              // more patterns as you scroll
-  float pattern  = grid     * 0.15 * density;
-       pattern += hexCells * 0.08 * density;
-       pattern += hexPulse * 0.04 * density;
-       pattern += rings    * 0.10 * density;
-       pattern += beams    * 0.06 * density;
-       pattern += scan     * 0.03 * density;
+  // Vertical falloff
+  float grad = smoothstep(-1.0, 1.0, dir.y);
+  col *= mix(0.7, 1.25, grad);
 
-  // ── Scroll-driven accent color ───────────────────────────────
-  vec3 accentA = mix(vec3(0.10, 0.14, 0.30), vec3(0.14, 0.08, 0.30), uScroll);
-  vec3 accentB = mix(vec3(0.06, 0.10, 0.20), vec3(0.20, 0.06, 0.25), uScroll);
-
-  col += accentA * (grid + rings) * 0.12;
-  col += accentB * (hexCells + beams) * 0.08;
-
-  // ── Subtle central glow for depth ────────────────────────────
-  float centerGlow = pow(1.0 - abs(dir.y), 4.0) * 0.03;
-  col += vec3(0.02, 0.03, 0.06) * centerGlow;
-
-  // Keep everything extremely dark — jet black with faint etched lines.
-  col = clamp(col, 0.0, 0.18);
+  col = mix(uBaseCol, col, 0.96);
 
   gl_FragColor = vec4(col, 1.0);
 }
@@ -211,97 +218,9 @@ void main(){
 
   vec3 col = base * 0.12;
   col += fresnel * base * 2.6;
-  col += pow(fresnel, 4.0) * vec3(1.6);       // white-hot core rim
-  col += base * pulse * 0.15;                 // surface energy pulse
+  col += pow(fresnel, 4.0) * vec3(1.6);
+  col += base * pulse * 0.15;
 
   gl_FragColor = vec4(col, 1.0);
 }
 `
-
-/* ── ENERGY CORE ORB (displaced sphere + fresnel rim) ── */
-export const orbVertex = /* glsl */ `
-precision highp float;
-uniform float uTime;
-uniform float uScroll;
-uniform float uDisplace;
-uniform vec3  uPointer;
-varying vec3  vNormal;
-varying vec3  vView;
-varying float vNoise;
-${snoise}
-
-void main(){
-  vec3 pos = position;
-
-  // Layered noise displacement — a living, morphing surface.
-  float t = uTime * 0.35;
-  float n  = snoise(pos * 1.1 + vec3(0.0, 0.0, t));
-  n       += 0.5  * snoise(pos * 2.3 + vec3(t * 1.3));
-  n       += 0.25 * snoise(pos * 4.6 - vec3(t));
-
-  // Pointer creates a soft bulge; scroll increases turbulence.
-  float bulge = dot(normalize(pos), normalize(uPointer + 0.0001)) * 0.15;
-  float displacement = (n + bulge) * (uDisplace + uScroll * 0.35);
-
-  vec3 newPos = pos + normal * displacement;
-  vNoise = n;
-
-  vNormal = normalize(normalMatrix * normal);
-  vec4 mv = modelViewMatrix * vec4(newPos, 1.0);
-  vView = -mv.xyz;
-  gl_Position = projectionMatrix * mv;
-}
-`
-
-export const orbFragment = /* glsl */ `
-precision highp float;
-uniform float uTime;
-uniform float uScroll;
-uniform vec3  uCyan;
-uniform vec3  uPurple;
-varying vec3  vNormal;
-varying vec3  vView;
-varying float vNoise;
-
-void main(){
-  vec3 N = normalize(vNormal);
-  vec3 V = normalize(vView);
-
-  // Fresnel rim — the neon glow along the silhouette.
-  float fres = pow(1.0 - clamp(dot(N, V), 0.0, 1.0), 2.4);
-
-  // Base color flows between cyan and purple with the noise + scroll.
-  float mixv = smoothstep(-1.0, 1.0, vNoise) * 0.6 + uScroll * 0.4;
-  vec3 base = mix(uCyan, uPurple, clamp(mixv, 0.0, 1.0));
-
-  vec3 col = base * 0.25;                 // dark interior
-  col += fres * mix(uCyan, uPurple, uScroll) * 2.6;  // glowing rim
-  col += pow(fres, 3.0) * 1.5;            // hot white edge
-
-  gl_FragColor = vec4(col, 1.0);
-}
-`
-
-/* ── SOFT GLOW HALO (additive shell around the core, fakes bloom) ── */
-export const haloFragment = /* glsl */ `
-precision highp float;
-uniform float uScroll;
-uniform vec3  uCyan;
-uniform vec3  uPurple;
-varying vec3  vNormal;
-varying vec3  vView;
-varying float vNoise;
-
-void main(){
-  vec3 N = normalize(vNormal);
-  vec3 V = normalize(vView);
-  // Bright at the silhouette, transparent toward the center → aura.
-  float fres = pow(1.0 - clamp(dot(N, V), 0.0, 1.0), 2.0);
-  vec3 col = mix(uCyan, uPurple, clamp(uScroll + vNoise * 0.2, 0.0, 1.0));
-  gl_FragColor = vec4(col, fres * 0.55);
-}
-`
-
-
-
-
