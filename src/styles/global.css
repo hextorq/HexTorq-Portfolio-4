@@ -112,17 +112,16 @@ button {
 }
 
 /* Fixed scrim above the canvas, below content — keeps text readable
-   over the animated nebula (darker at the top for the nav, and a
-   soft radial vignette at the edges). */
+   over the pattern background. Lighter since bg is now jet black. */
 .scrim {
   position: fixed;
   inset: 0;
   z-index: 1;
   pointer-events: none;
   background:
-    linear-gradient(180deg, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0) 18%),
-    linear-gradient(0deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 16%),
-    radial-gradient(120% 90% at 50% 40%, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.55) 100%);
+    linear-gradient(180deg, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0) 20%),
+    linear-gradient(0deg, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0) 12%),
+    radial-gradient(120% 90% at 50% 40%, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.30) 100%);
 }
 
 /* Content scrolls above the canvas */

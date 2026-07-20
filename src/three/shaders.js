@@ -59,7 +59,10 @@ float snoise(vec3 v){
 }
 `
 
-/* ── NEBULA BACKGROUND (rendered on the inside of a big sphere) ── */
+/* ── GEOMETRIC PATTERN BACKGROUND (inside-out sphere) ───────────────
+     Renders tech/architectural geometry on jet black instead of
+     organic nebula clouds. Patterns include a wireframe grid,
+     hexagonal tessellation, concentric rings, and radial tech beams. ──*/
 export const skyVertex = /* glsl */ `
 varying vec3 vPos;
 void main() {
@@ -73,91 +76,143 @@ precision highp float;
 varying vec3 vPos;
 uniform float uTime;
 uniform float uScroll;
-uniform vec3 uBase;   // deep background
-uniform vec3 uCyan;
-uniform vec3 uPurple;
-${snoise}
 
-// Fractal brownian motion for soft, layered clouds (4 octaves, unrolled for performance).
-float fbm(vec3 p){
-  float v = 0.0;
-  v += 0.5000 * snoise(p); p *= 2.0;
-  v += 0.2500 * snoise(p); p *= 2.0;
-  v += 0.1250 * snoise(p); p *= 2.0;
-  v += 0.0625 * snoise(p);
-  return v;
-}
-
-// Lightweight 2-octave FBM for coordinate warping (unrolled).
-float fbmWarp(vec3 p){
-  float v = 0.0;
-  v += 0.500 * snoise(p); p *= 2.0;
-  v += 0.250 * snoise(p);
-  return v;
+// ── Anti-aliased line helper ────────────────────────────────────
+float aastep(float width, float v) {
+  float d = fwidth(v);
+  return smoothstep(width - d, width + d, v);
 }
 
 void main(){
+  vec3 col = vec3(0.0);                       // jet black base
   vec3 dir = normalize(vPos);
-  vec3 q = dir * 1.7;
-  q.z += uTime * 0.05;
-  q.y += uScroll * 0.7;
 
-  // Domain-warped fbm → flowing aurora clouds.
-  float n = fbm(q + fbmWarp(q * 0.7 + uTime * 0.04));
-  n = n * 0.5 + 0.5;
+  // Spherical coordinates for pattern mapping.
+  float theta = atan(dir.z, dir.x);           // -PI..PI  longitude
+  float phi   = acos(dir.y);                  //  0..PI   latitude
 
-  // A second, slower & cheaper layer for depth and motion.
-  float n2 = fbmWarp(q * 0.5 - vec3(uTime * 0.03, 0.0, 0.0));
-  n2 = n2 * 0.5 + 0.5;
+  // ── 1. Wireframe grid (lat/long lines) ───────────────────────
+  float gridLat = sin(phi * 22.0 + uTime * 0.008) * 0.5 + 0.5;
+  float gridLon = sin(theta * 16.0 + uTime * 0.006) * 0.5 + 0.5;
+  float grid    = aastep(0.94, gridLat) + aastep(0.94, gridLon);
 
-  // Three energy bands — wide ranges so more of the sky glows.
-  float blueField   = smoothstep(0.30, 0.92, n);
-  float violetField = smoothstep(0.42, 1.00, mix(n, n2, 0.5));
-  float hot         = smoothstep(0.72, 1.00, n);        // bright cores
+  // ── 2. Hexagonal tessellation ────────────────────────────────
+  float hx = theta * 7.0;
+  float hy = phi * 5.0;
+  float hexDist = max(
+    abs(sin(hx + sin(hy) * 0.5)),
+    abs(cos(hy + sin(hx) * 0.5))
+  );
+  float hexCells = aastep(0.82, hexDist);
+  float hexAnim = sin(uTime * 0.05 + hexDist * 4.0) * 0.5 + 0.5;
+  float hexPulse = aastep(0.70 + hexAnim * 0.18, hexDist);
 
-  // ── Scroll-driven palette ──────────────────────────────────────
-  // The two accent colours travel through a sequence of moods as you
-  // scroll, so each part of the page has its own distinct atmosphere.
-  //   0.0  hero      → electric blue / indigo
-  //   0.25 services  → indigo / violet
-  //   0.5  products  → violet / magenta
-  //   0.75 projects  → teal-cyan / blue
-  //   1.0  contact   → deep blue / violet
-  vec3 accentA, accentB;
-  float s = clamp(uScroll, 0.0, 1.0) * 4.0;   // 0..4 across 5 stops
-  if (s < 1.0) {
-    float f = smoothstep(0.0, 1.0, s);
-    accentA = mix(vec3(0.24,0.42,1.0), vec3(0.36,0.30,1.0), f);   // blue→indigo
-    accentB = mix(vec3(0.49,0.36,0.93), vec3(0.55,0.28,0.95), f); // indigo→violet
-  } else if (s < 2.0) {
-    float f = smoothstep(0.0, 1.0, s - 1.0);
-    accentA = mix(vec3(0.36,0.30,1.0), vec3(0.62,0.26,0.95), f);  // indigo→violet
-    accentB = mix(vec3(0.55,0.28,0.95), vec3(0.95,0.30,0.72), f); // violet→magenta
-  } else if (s < 3.0) {
-    float f = smoothstep(0.0, 1.0, s - 2.0);
-    accentA = mix(vec3(0.62,0.26,0.95), vec3(0.13,0.72,0.86), f); // violet→teal
-    accentB = mix(vec3(0.95,0.30,0.72), vec3(0.24,0.50,1.0), f);  // magenta→blue
-  } else {
-    float f = smoothstep(0.0, 1.0, s - 3.0);
-    accentA = mix(vec3(0.13,0.72,0.86), vec3(0.24,0.42,1.0), f);  // teal→blue
-    accentB = mix(vec3(0.24,0.50,1.0), vec3(0.49,0.34,0.95), f);  // blue→violet
-  }
+  // ── 3. Concentric rings ──────────────────────────────────────
+  float ringsRaw = sin(phi * 14.0 - uTime * 0.04 + uScroll * 3.0);
+  float rings    = aastep(0.90, ringsRaw * 0.5 + 0.5);
 
-  vec3 col = uBase;
-  col += accentA * blueField   * 0.95;
-  col += accentB * violetField * 1.05;
-  col += vec3(0.55, 0.68, 1.0) * hot * 0.6;             // hot highlights
+  // ── 4. Radial tech beams ─────────────────────────────────────
+  float beamsRaw = sin(theta * 28.0 + uScroll * 5.0) * sin(phi * 8.0 + uScroll * 2.0);
+  float beams    = aastep(0.88, beamsRaw * 0.5 + 0.5);
 
-  // Big soft central glow so the scene feels lit, not flat.
-  float centerGlow = pow(1.0 - abs(dir.y), 3.0);
-  col += mix(accentA, accentB, 0.5) * centerGlow * (0.18 + 0.25 * uScroll);
+  // ── 5. Scan-line pulse ───────────────────────────────────────
+  float scanY = sin(phi * 60.0 + uTime * 0.2) * 0.5 + 0.5;
+  float scan  = aastep(0.94, scanY);
 
-  // Gentle vertical falloff for depth.
-  float grad = smoothstep(-1.0, 1.0, dir.y);
-  col *= mix(0.7, 1.25, grad);
+  // ── Composite with scroll-driven density ──────────────────────
+  float density = 0.4 + uScroll * 0.6;              // more patterns as you scroll
+  float pattern  = grid     * 0.15 * density;
+       pattern += hexCells * 0.08 * density;
+       pattern += hexPulse * 0.04 * density;
+       pattern += rings    * 0.10 * density;
+       pattern += beams    * 0.06 * density;
+       pattern += scan     * 0.03 * density;
 
-  // Keep a dark, rich base so foreground text still reads.
-  col = mix(uBase, col, 0.96);
+  // ── Scroll-driven accent color ───────────────────────────────
+  vec3 accentA = mix(vec3(0.10, 0.14, 0.30), vec3(0.14, 0.08, 0.30), uScroll);
+  vec3 accentB = mix(vec3(0.06, 0.10, 0.20), vec3(0.20, 0.06, 0.25), uScroll);
+
+  col += accentA * (grid + rings) * 0.12;
+  col += accentB * (hexCells + beams) * 0.08;
+
+  // ── Subtle central glow for depth ────────────────────────────
+  float centerGlow = pow(1.0 - abs(dir.y), 4.0) * 0.03;
+  col += vec3(0.02, 0.03, 0.06) * centerGlow;
+
+  // Keep everything extremely dark — jet black with faint etched lines.
+  col = clamp(col, 0.0, 0.18);
+
+  gl_FragColor = vec4(col, 1.0);
+}
+`
+
+/* ── MORPHING TORUS KNOT ───────────────────────────────────────────
+     Vertex displacement with simplex noise creates an organic, living
+     surface. Scroll controls morph intensity; pointer creates a bulge. ──*/
+export const knotVertex = /* glsl */ `
+precision highp float;
+uniform float uTime;
+uniform float uScroll;
+uniform vec3  uPointer;
+uniform float uScale;
+varying vec3  vNormal;
+varying vec3  vView;
+varying float vNoise;
+${snoise}
+
+void main(){
+  vec3 pos = position;
+  float t = uTime * 0.15;
+
+  // 3-octave noise for organic morphing
+  float n  = snoise(pos * 1.8 + t);
+  n       += 0.5  * snoise(pos * 3.5 - t * 1.2);
+  n       += 0.25 * snoise(pos * 7.0 + t * 0.8);
+
+  // Displacement intensity grows with scroll
+  float intensity = 0.06 + uScroll * 0.14;
+  // Pointer bulge — follow the cursor
+  float bulge = dot(normalize(pos), normalize(uPointer + 0.0001)) * 0.04;
+  float displacement = (n * 0.5 + 0.5) * intensity + bulge;
+
+  vec3 newPos = pos + normal * displacement;
+  vNoise = n;
+
+  vNormal = normalize(normalMatrix * normal);
+  vec4 mv = modelViewMatrix * vec4(newPos, 1.0);
+  vView = -mv.xyz;
+  gl_Position = projectionMatrix * mv;
+}
+`
+
+export const knotFragment = /* glsl */ `
+precision highp float;
+uniform float uTime;
+uniform float uScroll;
+uniform vec3  uBlue;
+uniform vec3  uViolet;
+varying vec3  vNormal;
+varying vec3  vView;
+varying float vNoise;
+
+void main(){
+  vec3 N = normalize(vNormal);
+  vec3 V = normalize(vView);
+
+  // Fresnel rim — bright at edges, dark at center
+  float fresnel = pow(1.0 - clamp(dot(N, V), 0.0, 1.0), 2.6);
+
+  // Gradient: blue→violet driven by noise + scroll
+  float mixVal = clamp(vNoise * 0.8 + 0.5 + uScroll * 0.3, 0.0, 1.0);
+  vec3 base = mix(uBlue, uViolet, mixVal);
+
+  // Energy pulse rippling across the surface
+  float pulse = sin(uTime * 0.5 + vNoise * 4.0) * 0.5 + 0.5;
+
+  vec3 col = base * 0.12;
+  col += fresnel * base * 2.6;
+  col += pow(fresnel, 4.0) * vec3(1.6);       // white-hot core rim
+  col += base * pulse * 0.15;                 // surface energy pulse
 
   gl_FragColor = vec4(col, 1.0);
 }
@@ -247,61 +302,6 @@ void main(){
 }
 `
 
-/* ── THE "X" MOTIF — logo gradient + fresnel glow ─────────────────
-   Gradient runs blue→violet across world-space X, so as the mark
-   torques the gradient sweeps like light across metal. ───────────*/
-export const xVertex = /* glsl */ `
-precision highp float;
-varying vec3 vNormal;
-varying vec3 vView;
-varying vec3 vWorld;
-void main(){
-  vec4 wp = modelMatrix * vec4(position, 1.0);
-  vWorld  = wp.xyz;
-  vNormal = normalize(mat3(modelMatrix) * normal);
-  vView   = cameraPosition - wp.xyz;
-  gl_Position = projectionMatrix * viewMatrix * wp;
-}
-`
 
-export const xFragment = /* glsl */ `
-precision highp float;
-uniform vec3  uBlue;
-uniform vec3  uViolet;
-varying vec3  vNormal;
-varying vec3  vView;
-varying vec3  vWorld;
-void main(){
-  vec3 N = normalize(vNormal);
-  vec3 V = normalize(vView);
-  float fres = pow(1.0 - clamp(dot(N, V), 0.0, 1.0), 2.2);
-
-  // blue (left) → violet (right) across the mark
-  float t = clamp(vWorld.x * 0.32 + 0.5, 0.0, 1.0);
-  vec3 base = mix(uBlue, uViolet, t);
-
-  vec3 col = base * 0.30;          // metallic body
-  col += fres * base * 2.6;        // glowing edges
-  col += pow(fres, 3.0) * 1.3;     // hot white rim
-  gl_FragColor = vec4(col, 1.0);
-}
-`
-
-export const xHaloFragment = /* glsl */ `
-precision highp float;
-uniform vec3  uBlue;
-uniform vec3  uViolet;
-varying vec3  vNormal;
-varying vec3  vView;
-varying vec3  vWorld;
-void main(){
-  vec3 N = normalize(vNormal);
-  vec3 V = normalize(vView);
-  float fres = pow(1.0 - clamp(dot(N, V), 0.0, 1.0), 2.0);
-  float t = clamp(vWorld.x * 0.32 + 0.5, 0.0, 1.0);
-  vec3 col = mix(uBlue, uViolet, t);
-  gl_FragColor = vec4(col, fres * 0.5);
-}
-`
 
 
