@@ -13,29 +13,28 @@ import {
   Process,
   Projects,
   Ecosystem,
+  FaqSection,
   Contact,
 } from './components/Sections'
 import { useSmoothScroll } from './hooks/useSmoothScroll'
 import { scrollStore } from './three/scrollStore'
 import { marqueeWords } from './content'
-import { currentSectionFromPath, scrollToSection } from './routeUtils'
+import { currentSectionFromPath, scrollToSection, normalizePath } from './routeUtils'
+import { ROUTE_SEO_MAP } from './seo/routeSeo'
 
 const hasPrerenderedHtml = () =>
   typeof document !== 'undefined' &&
   document.getElementById('root')?.dataset.prerendered === 'true'
 
 export default function App({ prerender = false }) {
-  const [ready, setReady] = useState(prerender || hasPrerenderedHtml()) // becomes true when intro finishes
+  const [ready, setReady] = useState(prerender || hasPrerenderedHtml())
 
-  // Smooth scroll only after the intro completes.
   const lenisRef = useSmoothScroll(ready)
 
-  // Lock native scroll while the preloader is up.
   useEffect(() => {
     document.documentElement.style.overflow = ready ? '' : 'hidden'
   }, [ready])
 
-  // Feed global scroll progress into the store the 3D scene reads.
   useEffect(() => {
     if (!ready) return
     const update = () => {
@@ -51,12 +50,30 @@ export default function App({ prerender = false }) {
     }
   }, [ready])
 
+  // Update dynamic document title & canonical based on current route
   useEffect(() => {
-    if (!ready || prerender) return
+    if (!ready || prerender || typeof window === 'undefined') return
+    const updateMetaData = () => {
+      const currentPath = normalizePath(window.location.pathname)
+      const seo = ROUTE_SEO_MAP[currentPath] || ROUTE_SEO_MAP['/']
+      if (seo) {
+        document.title = seo.title
+        let link = document.querySelector("link[rel='canonical']")
+        if (!link) {
+          link = document.createElement('link')
+          link.setAttribute('rel', 'canonical')
+          document.head.appendChild(link)
+        }
+        link.setAttribute('href', seo.canonical)
+      }
+    }
+
     const scrollToCurrentRoute = () => {
       const section = currentSectionFromPath()
       if (section) window.setTimeout(() => scrollToSection(section, lenisRef), 80)
+      updateMetaData()
     }
+
     scrollToCurrentRoute()
     window.addEventListener('popstate', scrollToCurrentRoute)
     return () => window.removeEventListener('popstate', scrollToCurrentRoute)
@@ -73,13 +90,13 @@ export default function App({ prerender = false }) {
       {/* Fixed WebGL background */}
       <Scene />
 
-      {/* Readability scrim: darkens top (for the nav) + edges over the nebula */}
+      {/* Readability scrim */}
       <div className="scrim" aria-hidden="true" />
 
       {/* Foreground content */}
       <div className="content">
         <Navbar lenisRef={lenisRef} />
-        <main>
+        <main id="main-content">
           <Hero lenisRef={lenisRef} ready={ready} />
           <Story />
           <Services />
@@ -88,6 +105,7 @@ export default function App({ prerender = false }) {
           <Process />
           <Projects />
           <Ecosystem />
+          <FaqSection />
           <Contact />
         </main>
       </div>

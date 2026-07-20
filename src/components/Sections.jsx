@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import {
@@ -9,6 +9,7 @@ import {
   projects,
   process,
   showcase,
+  faqs,
   contact,
   footer,
   brand,
@@ -116,16 +117,21 @@ export function Hero({ lenisRef, ready }) {
         </h1>
         <p className="hero-sub">{hero.subtitle}</p>
         <div className="hero-actions">
-          <button className="btn btn-primary" ref={ctaRef} onClick={() => go(hero.cta.target)}>
+          <button
+            className="btn btn-primary"
+            ref={ctaRef}
+            onClick={() => go(hero.cta.target)}
+            aria-label="Explore IT services and AI development"
+          >
             {hero.cta.label}
-            <span className="btn-arrow">→</span>
+            <span className="btn-arrow" aria-hidden="true">→</span>
           </button>
         </div>
       </div>
 
       <div className="scroll-hint">
         <span>{hero.scrollHint}</span>
-        <span className="scroll-line" />
+        <span className="scroll-line" aria-hidden="true" />
       </div>
     </section>
   )
@@ -141,7 +147,6 @@ export function Story() {
     if (!statsRef.current) return
     const ctx = gsap.context(() => {
       const statCards = statsRef.current.querySelectorAll('.stat')
-      // Entrance
       gsap.from(statCards, {
         y: 40,
         opacity: 0,
@@ -153,7 +158,6 @@ export function Story() {
           start: 'top 82%',
           once: true,
           onEnter: () => {
-            // Count-up each value after cards enter
             gsap.utils.toArray('.stat-value').forEach((el) => {
               const raw = el.dataset.value || ''
               const num = parseFloat(raw.replace(/[^0-9.]/g, ''))
@@ -252,8 +256,8 @@ export function Services() {
                   <li key={p}>{p}</li>
                 ))}
               </ul>
-              <div className="svc-glow" />
-              <div className="glass-glare" />
+              <div className="svc-glow" aria-hidden="true" />
+              <div className="glass-glare" aria-hidden="true" />
             </article>
           ))}
         </div>
@@ -267,7 +271,6 @@ export function Products() {
   const scope = useReveal('.reveal')
   const cardsRef = useRef(null)
 
-  // Card entrance animation
   useEffect(() => {
     if (!cardsRef.current) return
     const ctx = gsap.context(() => {
@@ -284,7 +287,6 @@ export function Products() {
           once: true,
         },
         onComplete: () => {
-          // Parallax after cards are visible
           gsap.utils.toArray(cardsRef.current.querySelectorAll('.prod-visual')).forEach((visual) => {
             const orb = visual.querySelector('.prod-orb')
             const name = visual.querySelector('.prod-name')
@@ -321,7 +323,7 @@ export function Products() {
             >
               <div className="prod-visual">
                 <div className="prod-badge">{p.status}</div>
-                <div className="prod-orb" />
+                <div className="prod-orb" aria-hidden="true" />
                 <div className="prod-name">{p.name}</div>
               </div>
 
@@ -332,13 +334,13 @@ export function Products() {
                 <ul className="prod-features">
                   {p.features.map((f) => (
                     <li key={f}>
-                      <span className="prod-tick">✦</span>
+                      <span className="prod-tick" aria-hidden="true">✦</span>
                       {f}
                     </li>
                   ))}
                 </ul>
-                <a className="prod-link" href={p.href} data-cursor="visit">
-                  Visit {p.name} <span>↗</span>
+                <a className="prod-link" href={p.href} data-cursor="visit" aria-label={`Visit ${p.name} SaaS platform`}>
+                  Visit {p.name} <span aria-hidden="true">↗</span>
                 </a>
               </div>
             </article>
@@ -393,7 +395,7 @@ export function Projects() {
                   <li key={t}>{t}</li>
                 ))}
               </ul>
-              <div className="glass-glare" />
+              <div className="glass-glare" aria-hidden="true" />
             </article>
           ))}
         </div>
@@ -407,7 +409,6 @@ export function Process() {
   const section = useRef(null)
   const track = useRef(null)
 
-  // Animate steps as they enter on scroll
   useEffect(() => {
     if (!track.current) return
     const ctx = gsap.context(() => {
@@ -432,7 +433,6 @@ export function Process() {
     if (!section.current || !track.current) return
     const mm = gsap.matchMedia()
 
-    // Pin + scroll horizontally on larger screens; stack on mobile.
     mm.add('(min-width: 860px)', () => {
       const getScroll = () => track.current.scrollWidth - window.innerWidth
       const tween = gsap.to(track.current, {
@@ -460,7 +460,7 @@ export function Process() {
           <span className="eyebrow">{process.eyebrow}</span>
           <h2 className="process-heading h-display">{process.heading}</h2>
           <p className="process-hint">
-            <span className="process-hint-line" /> Scroll to explore
+            <span className="process-hint-line" aria-hidden="true" /> Scroll to explore
           </p>
         </div>
 
@@ -471,6 +471,51 @@ export function Process() {
             <p className="process-text">{s.text}</p>
           </article>
         ))}
+      </div>
+    </section>
+  )
+}
+
+/* ── FAQS ─────────────────────────────────────────────────────── */
+export function FaqSection() {
+  const scope = useReveal('.reveal')
+  const [openIndex, setOpenIndex] = useState(0)
+
+  const toggle = (i) => setOpenIndex((prev) => (prev === i ? -1 : i))
+
+  return (
+    <section className="faqs section" id="faq" ref={scope}>
+      <div className="container">
+        <span className="eyebrow reveal">{faqs.eyebrow}</span>
+        <MaskHeading text={faqs.heading} className="section-heading" />
+
+        <div className="faq-list">
+          {faqs.items.map((item, i) => {
+            const isOpen = openIndex === i
+            return (
+              <article className={`faq-item glass ${isOpen ? 'is-open' : ''}`} key={i}>
+                <button
+                  className="faq-question"
+                  onClick={() => toggle(i)}
+                  aria-expanded={isOpen}
+                  aria-controls={`faq-answer-${i}`}
+                >
+                  <span className="faq-q-text">{item.question}</span>
+                  <span className="faq-icon" aria-hidden="true">
+                    {isOpen ? '−' : '+'}
+                  </span>
+                </button>
+                <div
+                  id={`faq-answer-${i}`}
+                  className="faq-answer"
+                  hidden={!isOpen}
+                >
+                  <p>{item.answer}</p>
+                </div>
+              </article>
+            )
+          })}
+        </div>
       </div>
     </section>
   )
@@ -523,18 +568,17 @@ export function Contact() {
           ))}
         </h2>
         <p className="contact-sub reveal">{contact.subtitle}</p>
-        <a className="btn btn-primary btn-lg reveal" ref={ctaRef} href={contact.cta.href}>
+        <a className="btn btn-primary btn-lg reveal" ref={ctaRef} href={contact.cta.href} aria-label="Contact Hextorq via Email">
           {contact.cta.label}
-          <span className="btn-arrow">→</span>
+          <span className="btn-arrow" aria-hidden="true">→</span>
         </a>
 
         <div className="contact-meta reveal">
-          <a href={`mailto:${brand.email}`}>{brand.email}</a>
+          <a href={`mailto:${brand.email}`} aria-label="Send email to Hextorq">{brand.email}</a>
           <span>{brand.location}</span>
         </div>
       </div>
 
-      {/* Reference-matched footer */}
       <footer className="footer">
         <div className="container">
           <div className="footer-top">
@@ -542,7 +586,7 @@ export function Contact() {
               <p className="footer-tagline">{footer.tagline}</p>
               <div className="footer-socials">
                 {brand.socials.map((s) => (
-                  <a key={s.label} href={s.href} className="footer-social" aria-label={s.label}>
+                  <a key={s.label} href={s.href} className="footer-social" aria-label={s.label} target="_blank" rel="noopener noreferrer">
                     {SOCIAL_ICONS[s.label] || s.label}
                   </a>
                 ))}
@@ -551,7 +595,7 @@ export function Contact() {
 
             {footer.columns.map((col) => (
               <div className="footer-col" key={col.title}>
-                <h4 className="footer-col-title">{col.title}</h4>
+                <h3 className="footer-col-title">{col.title}</h3>
                 <ul>
                   {col.links.map((l) => (
                     <li key={l.label}>
@@ -566,7 +610,6 @@ export function Contact() {
             ))}
           </div>
 
-          {/* Giant outlined wordmark */}
           <div className="footer-wordmark" aria-hidden="true">
             {footer.wordmark}
           </div>

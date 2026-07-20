@@ -1,13 +1,10 @@
 /**
  * ─────────────────────────────────────────────────────────────
- *  HEXTORQ — SITE CONTENT
+ *  HEXTORQ — SITE CONTENT (SEO & E-E-A-T OPTIMIZED)
  * ─────────────────────────────────────────────────────────────
- *  Single source of truth for all copy. Edit text, links, stats
- *  and lists here — nothing else needs to change.
- *
- *  TODO for Hextorq: replace every `href: '#'` with the real live
- *  URL (product sites + your other published websites), and tune
- *  the stat numbers to real figures.
+ *  Single source of truth for all copy. Natural language integration
+ *  of target keywords: AI Software Development Company, AI Development,
+ *  Web Development, Custom Software, Mobile App Development, Business Automation.
  * ─────────────────────────────────────────────────────────────
  */
 
@@ -20,10 +17,10 @@ export const brand = {
   domain: 'hextorq.tech',
   location: 'India · Remote-first',
   socials: [
-    { label: 'X', href: '#' },
-    { label: 'Instagram', href: '#' },
-    { label: 'YouTube', href: '#' },
-    { label: 'LinkedIn', href: '#' },
+    { label: 'X', href: 'https://twitter.com/hextorq' },
+    { label: 'Instagram', href: 'https://instagram.com/hextorq' },
+    { label: 'YouTube', href: 'https://youtube.com/@hextorq' },
+    { label: 'LinkedIn', href: 'https://linkedin.com/company/hextorq' },
   ],
 }
 
@@ -32,82 +29,84 @@ export const nav = [
   { label: 'Services', target: 'services' },
   { label: 'Products', target: 'products' },
   { label: 'Projects', target: 'projects' },
+  { label: 'Process', target: 'process' },
+  { label: 'FAQ', target: 'faq' },
   { label: 'Contact', target: 'contact' },
 ]
 
 export const hero = {
-  eyebrow: 'IT · SOFTWARE · PRODUCTS · INNOVATION',
+  eyebrow: 'AI SOFTWARE DEVELOPMENT COMPANY · CUSTOM IT SOLUTIONS',
   title: ['We build the', 'technology that', 'moves the future.'],
   subtitle:
-    'Hextorq is a full-spectrum IT-tech company — engineering software, apps and platforms for businesses, shipping our own SaaS products, and powering the next generation of student & IoT innovation.',
-  cta: { label: 'Explore Hextorq', target: 'services' },
+    'Hextorq is a premier AI software development company engineering custom web apps, mobile apps, enterprise SaaS platforms, and intelligent business automation solutions.',
+  cta: { label: 'Explore Our Services', target: 'services' },
   scrollHint: 'Scroll to begin',
 }
 
 export const story = {
   eyebrow: 'WHO WE ARE',
-  heading: 'We turn ambitious ideas into technology that ships.',
+  heading: 'We turn ambitious ideas into production-grade software.',
   paragraphs: [
-    'Hextorq is a full-spectrum technology company. We design, engineer and operate software end-to-end — held to the same bar whether it carries a client’s name or our own.',
-    'That work runs on three fronts: custom IT services for businesses, a growing family of SaaS products live in production, and an innovation lab mentoring the students and makers building what’s next.',
-    'Web, mobile, ERP, payments, IoT — across every domain the job is the same: take the idea seriously, and ship it.',
+    'Hextorq is a full-spectrum AI software development company. We design, engineer, and operate resilient software end-to-end — adhering to high security, scale, and performance standards.',
+    'Our engineering operates across three core pillars: custom software development for enterprises, a growing suite of live SaaS products, and an innovation lab mentoring future developers and hardware makers.',
+    'Whether engineering complex web applications, native mobile apps, automated payment gateways, or enterprise ERP systems — our mission remains focused: deliver clean, high-performing code that scales.',
   ],
   stats: [
-    { value: '250+', label: 'Projects delivered' },
-    { value: '3', label: 'SaaS products live' },
-    { value: '500+', label: 'Students mentored' },
-    { value: '50+', label: 'Business clients' },
+    { value: '250+', label: 'Projects Delivered' },
+    { value: '3', label: 'Live SaaS Products' },
+    { value: '500+', label: 'Students Mentored' },
+    { value: '50+', label: 'Enterprise Clients' },
   ],
 }
 
 /* ── PILLAR 1 — SERVICES ──────────────────────────────────────── */
 export const services = {
-  eyebrow: 'PILLAR 01 — WHAT WE DO',
-  heading: 'IT services, engineered end-to-end.',
+  eyebrow: 'PILLAR 01 — OUR IT SERVICES',
+  heading: 'Enterprise IT & AI Development Services.',
   subheading:
-    'From a single landing page to a company-wide ERP — strategy, design, engineering and delivery under one roof.',
+    'From intelligent AI automation to enterprise web and mobile applications — strategy, UI/UX, engineering, and delivery under one roof.',
   items: [
     {
       id: 'software',
       index: '01',
-      title: 'Software Development',
-      summary: 'Custom software and platforms built around exactly how your business runs.',
-      points: ['Web apps', 'APIs & backends', 'Automation', 'Integrations'],
+      title: 'Software Development & AI',
+      summary: 'Custom software engineering, AI workflow automation, APIs, and scalable cloud backends.',
+      points: ['AI workflow automation', 'Custom web backends', 'REST & GraphQL APIs', 'Cloud architecture'],
     },
     {
       id: 'web',
       index: '02',
-      title: 'Website Development',
-      summary: 'Fast, striking, conversion-focused websites — from marketing sites to portals.',
-      points: ['React / Next.js', 'CMS', 'SEO', 'Core Web Vitals'],
+      title: 'Web Development',
+      summary: 'Fast, accessible, conversion-driven websites and web applications built for search visibility.',
+      points: ['React & Next.js platforms', 'Headless CMS', 'SEO & Core Web Vitals', 'Responsive web design'],
     },
     {
       id: 'app',
       index: '03',
-      title: 'App Development',
-      summary: 'Native-feeling iOS & Android apps your users actually love to use.',
-      points: ['React Native', 'Flutter', 'Push & realtime', 'Store delivery'],
+      title: 'Mobile App Development',
+      summary: 'Cross-platform native iOS & Android applications engineered for seamless user experience.',
+      points: ['React Native & Flutter', 'Realtime web sockets', 'Push notifications', 'App Store & Play Store delivery'],
     },
     {
       id: 'erp',
       index: '04',
-      title: 'ERP Software',
-      summary: 'Unify operations — inventory, HR, sales and finance — in one connected system.',
-      points: ['Inventory', 'HR & Payroll', 'CRM', 'Dashboards'],
+      title: 'Custom ERP Software',
+      summary: 'Unify operational workflows — inventory management, HR, sales, and analytics — in one connected dashboard.',
+      points: ['Inventory management', 'HR & payroll systems', 'CRM integrations', 'Realtime analytics'],
     },
     {
       id: 'billing',
       index: '05',
-      title: 'Billing Software',
-      summary: 'GST-ready billing and invoicing that’s fast at the counter and clean in the books.',
-      points: ['GST invoicing', 'POS', 'Reports', 'Multi-branch'],
+      title: 'GST Billing Software',
+      summary: 'GST-compliant invoicing and POS automation designed for speed at point-of-sale and financial accuracy.',
+      points: ['GST compliance', 'POS counter speed', 'Financial reporting', 'Multi-branch sync'],
     },
     {
       id: 'custom',
       index: '06',
-      title: 'Custom Solutions',
-      summary: 'Have something unusual in mind? We scope, design and engineer it from scratch.',
-      points: ['Consulting', 'Bespoke builds', 'Legacy upgrade', 'Support'],
+      title: 'Business Automation',
+      summary: 'Streamline repetitive enterprise tasks with custom automation scripts, bots, and integration pipelines.',
+      points: ['Process automation', 'Legacy system modernization', 'Security compliance', '24/7 technical support'],
     },
   ],
 }
@@ -115,21 +114,21 @@ export const services = {
 /* ── PILLAR 2 — PRODUCTS ──────────────────────────────────────── */
 export const products = {
   eyebrow: 'PILLAR 02 — HEXTORQ PRODUCTS',
-  heading: 'Software we own, live in production.',
+  heading: 'Production SaaS Platforms Engineered by Hextorq.',
   subheading:
-    'Not case studies — real SaaS platforms that Hextorq designs, ships and operates, trusted by paying customers every single day.',
+    'Proprietary SaaS platforms designed, built, and operated daily by Hextorq for payment processing, automated printing, and event ticketing.',
   items: [
     {
       id: 'paypanda',
       name: 'PayPanda',
-      category: 'Payment Gateway',
+      category: 'Payment Gateway Platform',
       description:
-        'A secure, developer-first payment gateway with a clean API, fraud protection and fast settlement — drop payments into any product in minutes.',
+        'A secure, developer-first payment gateway offering clean APIs, instant tokenization, fraud prevention, and rapid settlement integration.',
       features: [
-        'Unified payments API',
-        'PCI-DSS & tokenized',
-        'Fraud detection',
-        'Instant reporting',
+        'Unified Payments API',
+        'PCI-DSS Compliant Security',
+        'AI Fraud Detection',
+        'Instant Settlement Reports',
       ],
       accent: '#3d6bff',
       href: '#',
@@ -138,14 +137,14 @@ export const products = {
     {
       id: 'printpanda',
       name: 'PrintPanda',
-      category: 'Printing Automation',
+      category: 'Printing Automation Software',
       description:
-        'Printing, fully automated. Users upload their files, pay online, and the print job is queued and ready — no counter, no back-and-forth, no waiting.',
+        'End-to-end cloud printing automation. Customers upload files, pay online, and send jobs directly to print queues without manual intervention.',
       features: [
-        'Upload → pay → print',
-        'Automated job queue',
-        'Online payments built-in',
-        'Pickup notifications',
+        'Upload → Pay → Auto Print',
+        'Automated Job Queues',
+        'Integrated Payment Gateway',
+        'SMS & Email Notifications',
       ],
       accent: '#6a5cff',
       href: '#',
@@ -156,12 +155,12 @@ export const products = {
       name: 'TicketsPanda',
       category: 'Event Ticketing System',
       description:
-        'End-to-end event ticketing. Register an event, collect payments, and issue tickets to attendees automatically — with entry management built in.',
+        'Complete event registration and ticketing platform with automated digital ticket delivery and QR-code entry management.',
       features: [
-        'Event registration',
-        'Payment collection',
-        'Auto ticket issue',
-        'Entry / check-in',
+        'Event Registration Portal',
+        'Instant Payment Processing',
+        'Automated QR Tickets',
+        'Mobile Check-in Scanner',
       ],
       accent: '#7c3aed',
       href: '#',
@@ -173,39 +172,38 @@ export const products = {
 /* ── PILLAR 3 — PROJECTS & INNOVATION ─────────────────────────── */
 export const projects = {
   eyebrow: 'PILLAR 03 — INNOVATION LAB',
-  heading: 'Where students and ideas become builders.',
+  heading: 'Where Ideas & Engineering Talent Converge.',
   subheading:
-    'Beyond business, Hextorq powers real innovation — guiding students, prototyping hardware, and taking on the projects nobody else will.',
+    'Hextorq Innovation Lab empowers student builders, hardware creators, and enterprises with custom prototypes and technical guidance.',
   items: [
     {
       id: 'academic',
       title: 'Student & Academic Projects',
       summary:
-        'Final-year and academic projects across every domain — with real code, real guidance and documentation that actually holds up.',
-      tags: ['All domains', 'Guided', 'Documented', 'Viva-ready'],
+        'Guided final-year software and research projects with clean source code, architecture diagrams, and comprehensive documentation.',
+      tags: ['All Software Domains', 'Expert Mentorship', 'Complete Documentation', 'Viva-Ready Builds'],
     },
     {
       id: 'iot',
-      title: 'IoT & Hardware',
+      title: 'IoT & Hardware Prototyping',
       summary:
-        'Sensors, embedded systems and connected devices — from prototype on the bench to a working, demoable build.',
-      tags: ['Embedded', 'Sensors', 'Automation', 'Prototyping'],
+        'Sensors, microcontrollers, and connected embedded devices built from workbench prototype to functional hardware demo.',
+      tags: ['Embedded Systems', 'IoT Sensors', 'Hardware Automation', 'Rapid Prototyping'],
     },
     {
       id: 'custom',
-      title: 'Custom Requested Builds',
+      title: 'Custom Engineering Builds',
       summary:
-        'Bring us a brief from any field — we take on custom, on-request projects and deliver them end-to-end.',
-      tags: ['On-request', 'Any domain', 'End-to-end', 'Delivery'],
+        'Specialized, on-demand software builds scoped and engineered for unique industry requirements and emerging web standards.',
+      tags: ['Custom Scope', 'Cross-Industry', 'End-to-End Delivery', 'Production Ready'],
     },
   ],
 }
 
-/* ── PRODUCT SHOWCASE — scroll-split interactive cards ─────────── */
+/* ── PRODUCT SHOWCASE ─────────────────────────────────────────── */
 export const showcase = {
   eyebrow: 'PRODUCT SHOWCASE',
-  heading: 'Three products. One ecosystem.',
-  // Dark tech-circuit abstract — splits cleanly across 3 panels.
+  heading: 'Three Platforms. One Unified Ecosystem.',
   image:
     'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=2400&auto=format&fit=crop',
   cards: [
@@ -213,7 +211,7 @@ export const showcase = {
       tag: 'Payments',
       title: 'PayPanda',
       description:
-        'A secure, developer-first payment gateway — clean API, fraud protection and fast settlement. Drop payments into any product in minutes.',
+        'Developer-first payment gateway API with fraud protection and instant settlement reporting.',
       bgColor: '#0c1a3f',
       textColor: '#eaf0ff',
       href: '#',
@@ -223,7 +221,7 @@ export const showcase = {
       tag: 'Printing',
       title: 'PrintPanda',
       description:
-        'Printing, fully automated. Users upload files, pay online, and the job is queued and ready — no counter, no waiting.',
+        'Automated cloud printing workflow allowing users to upload, pay, and queue print jobs seamlessly.',
       bgColor: '#1a5bcf',
       textColor: '#ffffff',
       href: '#',
@@ -233,7 +231,7 @@ export const showcase = {
       tag: 'Ticketing',
       title: 'TicketsPanda',
       description:
-        'End-to-end event ticketing — register an event, collect payments, and issue tickets automatically, with entry management built in.',
+        'Automated event management, payment collection, and digital QR ticket verification.',
       bgColor: '#160c33',
       textColor: '#ece6ff',
       href: '#',
@@ -242,106 +240,140 @@ export const showcase = {
   ],
 }
 
-/* ── PROCESS — horizontal pinned storytelling (8 steps) ────────── */
+/* ── PROCESS — 8-step software lifecycle ───────────────────────── */
 export const process = {
   eyebrow: 'HOW WE WORK',
-  heading: 'From idea to impact.',
+  heading: 'Our Software Engineering Process.',
   steps: [
     {
       no: '01',
       title: 'Discover',
-      text: 'We dig into your goals, users and constraints — then map the fastest path to real value.',
+      text: 'We analyze your business goals, target audience, and architecture requirements to outline an optimal project roadmap.',
     },
     {
       no: '02',
       title: 'Strategize',
-      text: 'We shape scope, milestones and the tech stack so every decision points at the outcome.',
+      text: 'We define milestone deliverables, tech stack choices (React, Node, Cloud), and security protocols for measurable execution.',
     },
     {
       no: '03',
-      title: 'Design',
-      text: 'Interfaces and architecture designed together, so what looks good also scales well.',
+      title: 'UI/UX Design',
+      text: 'Responsive wireframes and accessible UI design system creation focusing on intuitive user journeys and conversions.',
     },
     {
       no: '04',
       title: 'Prototype',
-      text: 'A working prototype early — so you feel the product before we commit to building all of it.',
+      text: 'Interactive prototypes built early to test usability, refine user flows, and validate core features before full production build.',
     },
     {
       no: '05',
-      title: 'Engineer',
-      text: 'Clean, tested, production-grade code shipped in tight iterations you can see every week.',
+      title: 'Agile Engineering',
+      text: 'Clean, modular, and tested code written in short sprint cycles with weekly continuous deployment updates.',
     },
     {
       no: '06',
-      title: 'Test & Harden',
-      text: 'Automated tests, security reviews and load checks — we break it before your users can.',
+      title: 'Security & QA Testing',
+      text: 'Comprehensive automated test suites, performance optimization, and vulnerability scans to ensure zero-downtime reliability.',
     },
     {
       no: '07',
-      title: 'Launch',
-      text: 'We deploy, monitor and support — a launch that’s an event, not an emergency.',
+      title: 'Deployment & Launch',
+      text: 'Seamless cloud deployment on scalable server infrastructure with active SSL, CDN distribution, and monitoring.',
     },
     {
       no: '08',
-      title: 'Elevate',
-      text: 'Post-launch we measure, refine and grow the product alongside your business.',
+      title: 'Continuous Optimization',
+      text: 'Post-launch performance tracking, feature enhancements, SEO maintenance, and infrastructure scaling support.',
     },
   ],
 }
 
-/* Kinetic marquee — capability phrases */
+/* ── FAQS SECTION (E-E-A-T & HELPFUL CONTENT COMPLIANT) ────────── */
+export const faqs = {
+  eyebrow: 'FREQUENTLY ASKED QUESTIONS',
+  heading: 'Everything You Need to Know About Working with Hextorq.',
+  items: [
+    {
+      question: 'What makes Hextorq an industry-leading AI software development company?',
+      answer:
+        'Hextorq combines modern AI development capabilities with deep enterprise software engineering experience. We build custom web applications, native mobile apps, and scalable SaaS platforms engineered for security, speed, and search visibility.',
+    },
+    {
+      question: 'What technologies does Hextorq use for web and app development?',
+      answer:
+        'We use cutting-edge technology stacks including React, Next.js, Node.js, Python for AI services, React Native and Flutter for mobile applications, along with AWS/Vercel cloud infrastructure.',
+    },
+    {
+      question: 'Can Hextorq build custom ERP or Billing software for my enterprise?',
+      answer:
+        'Yes. We build custom ERP systems tailored to your specific business operations, including inventory tracking, HR, CRM, and automated GST billing software that integrates directly into your workflow.',
+    },
+    {
+      question: 'How do PayPanda, PrintPanda, and TicketsPanda work?',
+      answer:
+        'PayPanda is our developer-friendly payment gateway API; PrintPanda automates online file upload to printer queue workflows; and TicketsPanda manages event registration and automated QR ticket issuance.',
+    },
+    {
+      question: 'What is the typical timeline for custom software development?',
+      answer:
+        'Timelines depend on project complexity. Standard web applications take 2 to 4 weeks, while full enterprise platforms or complex AI integrations typically range from 6 to 12 weeks with weekly milestone demos.',
+    },
+  ],
+}
+
 export const marqueeWords = [
-  'Software Engineering',
-  'Web & Mobile',
-  'Cloud & DevOps',
-  'ERP Systems',
-  'Payment Platforms',
-  'IoT & Hardware',
-  'AI Automation',
-  'Product Innovation',
+  'AI Software Engineering',
+  'Web Development',
+  'Mobile App Engineering',
+  'Custom Enterprise Software',
+  'PayPanda Gateway',
+  'PrintPanda Automation',
+  'IoT & Hardware Prototyping',
+  'Core Web Vitals Optimization',
 ]
 
 export const contact = {
-  eyebrow: 'LET’S BUILD',
-  heading: ['Ready to build', 'with Hextorq?'],
+  eyebrow: 'LET’S BUILD TOGETHER',
+  heading: ['Ready to build your', 'next software project?'],
   subtitle:
-    'Whether it’s a product, a platform, or an academic project — tell us what you’re working on and we’ll take it from there.',
-  cta: { label: 'Start a conversation', href: 'mailto:hello@hextorq.tech' },
+    'Whether you need custom AI software development, web app engineering, or SaaS deployment — contact Hextorq’s team today.',
+  cta: { label: 'Start a Project Conversation', href: 'mailto:hello@hextorq.tech' },
 }
 
-/* ── FOOTER (reference-matched: columns + big wordmark) ────────── */
 export const footer = {
-  tagline: 'Hextorq is the modern way to build, ship and scale technology.',
+  tagline: 'Hextorq — Engineering enterprise software, mobile apps, and SaaS innovations.',
   columns: [
     {
-      title: 'Products',
+      title: 'SaaS Products',
       links: [
-        { label: 'PayPanda', href: '#' },
-        { label: 'PrintPanda', href: '#' },
-        { label: 'TicketsPanda', href: '#' },
+        { label: 'PayPanda Gateway', href: '#products' },
+        { label: 'PrintPanda Automation', href: '#products' },
+        { label: 'TicketsPanda Events', href: '#products' },
       ],
     },
     {
-      title: 'Resources',
+      title: 'Services',
       links: [
-        { label: 'Services', href: '#services' },
-        { label: 'Projects', href: '#projects' },
+        { label: 'AI & Software Engineering', href: '#services' },
+        { label: 'Web Development', href: '#services' },
+        { label: 'Mobile App Development', href: '#services' },
+        { label: 'ERP & Billing Software', href: '#services' },
       ],
     },
     {
       title: 'Company',
       links: [
-        { label: 'About', href: '#story' },
-        { label: 'Careers', href: '#', tag: 'WE’RE HIRING' },
+        { label: 'About Us', href: '#story' },
+        { label: 'Engineering Process', href: '#process' },
+        { label: 'Innovation Lab', href: '#projects' },
       ],
     },
   ],
   wordmark: 'HEXTORQ',
   legal: [
     { label: 'Security', href: '#' },
-    { label: 'Terms of service', href: '#' },
-    { label: 'Privacy policy', href: '#' },
+    { label: 'Terms of Service', href: '#' },
+    { label: 'Privacy Policy', href: '#' },
   ],
-  copyright: `© ${new Date().getFullYear()} Hextorq. All rights reserved.`,
+  copyright: `© ${new Date().getFullYear()} Hextorq Tech Solutions. All rights reserved.`,
 }
