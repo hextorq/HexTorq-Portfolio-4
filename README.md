@@ -1,43 +1,58 @@
 # HexTorq Portfolio 4
 
-HexTorq Portfolio 4 is a refined company portfolio website for Hextorq with a strong product-ecosystem focus. The UI keeps the premium dark technology style, but gives more space to product showcases, process storytelling, and footer navigation.
+Production portfolio template for HexTorq.
 
-## Website Experience
+Live site: https://portfolio-4.hextorq.tech/
 
-The site opens with a branded HEXTORQ intro and then moves into a polished full-page portfolio experience. The visitor sees a dark, high-contrast interface with animated backgrounds, large headings, service panels, product cards, and a clear final contact section.
+## Website Overview
 
-This version feels like a mature company website. It is still futuristic and animated, but it gives the product suite and business story more structure than a purely visual concept page.
+HexTorq Portfolio 4 is the default production-facing template. It keeps the premium dark technology style while giving more structure to product showcases, service explanations, process storytelling, and footer navigation.
 
-## UI Flow
+This version is the strongest default for a public company website because it balances visual impact with practical business information.
 
-The visitor moves through the website in this order:
+## Page Flow
 
-1. Hero section introducing Hextorq as a company that builds future-moving technology.
-2. Story section explaining the company mission and delivery mindset.
-3. Services section covering software, websites, apps, ERP, billing, and custom builds.
-4. Product section presenting PayPanda, PrintPanda, and TicketsPanda.
-5. Product showcase with split visual cards for payments, printing, and ticketing.
-6. Projects and innovation section for academic, IoT, and custom work.
-7. Process section with eight stages from discovery to post-launch improvement.
-8. Contact section with a direct call to start a conversation.
-9. Footer with product, resource, company, and legal navigation areas.
+- Home: HexTorq hero and company positioning.
+- About: company story and delivery mindset.
+- Services: software, websites, apps, ERP, billing, and custom builds.
+- Products: PayPanda, PrintPanda, TicketsPanda, and related product ecosystem content.
+- Projects: academic, IoT, and custom engineering work.
+- Process: eight-stage delivery workflow.
+- Contact: direct final call to start a project.
+- Footer: product, resource, company, and legal navigation.
 
-## Visual Direction
+## UI Direction
 
-This version uses a premium technology-company layout:
-
-- Strong HEXTORQ branding in the first screen.
-- Dark visual system with blue, violet, and light text contrast.
-- Scroll-based reveal animations across the sections.
+- Mature dark technology-company layout.
+- Strong HEXTORQ first-viewport branding.
+- Scroll reveal animations across the page.
 - Product cards that make the Panda suite feel like a connected ecosystem.
-- A larger footer that makes the site feel closer to a finished company website.
+- Larger footer structure for a finished company-site feel.
+- Small template-switch control for moving to another HexTorq portfolio style while keeping the same route.
 
-## Best Use
+## Static Build And SEO
 
-Use this version when the website should balance visual impact with practical company information. It is a good candidate for the final public portfolio because it has a clear product story, a clean service explanation, and a more complete website structure.
+The project uses Vite with a prerender step. Running the build generates static HTML route folders in `dist/`, so deployed pages can be served directly as HTML, CSS, and JavaScript.
 
-## Content Notes
+```bash
+npm install
+npm run build
+```
 
-Most website copy is organized in `src/content.js`. Update that file to change the company description, stats, product descriptions, process steps, social links, footer links, and contact email.
+The generated output includes prerendered pages such as `/about/`, `/services/`, `/products/`, `/projects/`, `/process/`, and `/contact/`.
 
-The current product and social links include placeholders. Replace them with final URLs before launch so visitors can move from the portfolio to the live Hextorq ecosystem.
+## Deployment Notes
+
+This site is intended for Vercel static deployment. The included `vercel.json` allows cross-origin asset loading and iframe embedding from the HexTorq apex domain, the `www` domain, and HexTorq subdomains:
+
+- `https://hextorq.tech`
+- `https://www.hextorq.tech`
+- `https://*.hextorq.tech`
+
+These headers are required so the Portfolio Mix website can preload and display this template inside a full-screen iframe.
+
+The frame policy explicitly allows the production mix domains `https://hextorq.tech`, `https://www.hextorq.tech`, and HexTorq subdomains. After changing `vercel.json`, redeploy the Vercel project so the new response headers are applied in production.
+
+## Content Editing
+
+Most public-facing content is in `src/content.js`. Update that file for company description, stats, product descriptions, process steps, social links, footer links, and contact details.
