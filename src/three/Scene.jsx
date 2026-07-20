@@ -1,14 +1,32 @@
 import { useMemo, useRef } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
+import { RoundedBox } from '@react-three/drei'
 import * as THREE from 'three'
 import { scrollStore } from './scrollStore'
-import { skyVertex, skyFragment, knotVertex, knotFragment } from './shaders'
+import {
+  skyVertex,
+  skyFragment,
+  xVertex,
+  xFragment,
+  xHaloFragment,
+} from './shaders'
 
 const lerp = THREE.MathUtils.lerp
 const damp = THREE.MathUtils.damp
 
-const BLUE = new THREE.Color('#3d6bff')
-const VIOLET = new THREE.Color('#7c3aed')
+// Exact User-Specified Section Color Stops:
+//   Hero (0%):       #3D6BFF electric blue → #5C4DFF indigo
+//   Services (25%):  #5C4DFF indigo → #9E42F2 violet
+//   Products (50%):  #9E42F2 violet → #21B8DB teal-cyan
+//   Projects (75%):  #21B8DB teal → #3D6BFF blue
+//   Contact (100%):  #3D6BFF blue → #7D56F2 violet
+const COLOR_STOPS = {
+  hero: { a: new THREE.Color('#3D6BFF'), b: new THREE.Color('#5C4DFF') },
+  services: { a: new THREE.Color('#5C4DFF'), b: new THREE.Color('#9E42F2') },
+  products: { a: new THREE.Color('#9E42F2'), b: new THREE.Color('#21B8DB') },
+  projects: { a: new THREE.Color('#21B8DB'), b: new THREE.Color('#3D6BFF') },
+  contact: { a: new THREE.Color('#3D6BFF'), b: new THREE.Color('#7D56F2') },
+}
 
 /* ── Smooths shared scroll/pointer state once per frame ──────────── */
 function StoreSmoother() {
@@ -21,7 +39,7 @@ function StoreSmoother() {
   return null
 }
 
-/* ── Geometric pattern background (inside-out sphere) ────────────── */
+/* ── Animated nebula background ──────────────────────────────────── */
 function Nebula() {
   const uniforms = useMemo(() => ({ uTime: { value: 0 }, uScroll: { value: 0 } }), [])
 
@@ -44,26 +62,19 @@ function Nebula() {
   )
 }
 
-/* ── MORPHING TORUS KNOT ───────────────────────────────────────────
-     A torus knot with noise-based vertex displacement that makes it
-     look alive and organic. Responds to cursor (tilt + bulge) and
-     scroll (morph intensity + pulse).                               */
-function MorphKnot() {
+/* ── THE HEXTORQ "X" — 3D element with exact section color stops ──── */
+function XMark() {
   const group = useRef()
-  const meshRef = useRef()
-  const prevPointer = useRef({ x: 0, y: 0 })
 
   const uniforms = useMemo(
     () => ({
-      uTime: { value: 0 },
-      uScroll: { value: 0 },
-      uPointer: { value: new THREE.Vector3(0, 0, 0) },
-      uScale: { value: 1 },
-      uBlue: { value: BLUE.clone() },
-      uViolet: { value: VIOLET.clone() },
+      uBlue: { value: COLOR_STOPS.hero.a.clone() },
+      uViolet: { value: COLOR_STOPS.hero.b.clone() },
     }),
     []
   )
+
+  const beam = [0.62, 3.2, 0.62]
 
   useFrame((state, dt) => {
     const p = scrollStore.progress
@@ -71,49 +82,94 @@ function MorphKnot() {
     const g = group.current
     if (!g) return
 
-    uniforms.uTime.value = t
-    uniforms.uScroll.value = p
+    // Exact Section Stop Color Interpolation:
+    // 0.00 - 0.25 (Hero → Services): #3D6BFF/#5C4DFF → #5C4DFF/#9E42F2
+    // 0.25 - 0.50 (Services → Products): #5C4DFF/#9E42F2 → #9E42F2/#21B8DB
+    // 0.50 - 0.75 (Products → Projects): #9E42F2/#21B8DB → #21B8DB/#3D6BFF
+    // 0.75 - 1.00 (Projects → Contact): #21B8DB/#3D6BFF → #3D6BFF/#7D56F2
+    const cA = new THREE.Color()
+    const cB = new THREE.Color()
 
-    // Smooth pointer for the bulge
-    prevPointer.current.x = lerp(prevPointer.current.x, scrollStore.pointer.x, 0.05)
-    prevPointer.current.y = lerp(prevPointer.current.y, scrollStore.pointer.y, 0.05)
-    uniforms.uPointer.value.set(prevPointer.current.x, prevPointer.current.y, 0)
+    if (p < 0.25) {
+      const f = p / 0.25
+      cA.lerpColors(COLOR_STOPS.hero.a, COLOR_STOPS.services.a, f)
+      cB.lerpColors(COLOR_STOPS.hero.b, COLOR_STOPS.services.b, f)
+    } else if (p < 0.50) {
+      const f = (p - 0.25) / 0.25
+      cA.lerpColors(COLOR_STOPS.services.a, COLOR_STOPS.products.a, f)
+      cB.lerpColors(COLOR_STOPS.services.b, COLOR_STOPS.products.b, f)
+    } else if (p < 0.75) {
+      const f = (p - 0.50) / 0.25
+      cA.lerpColors(COLOR_STOPS.products.a, COLOR_STOPS.projects.a, f)
+      cB.lerpColors(COLOR_STOPS.products.b, COLOR_STOPS.projects.b, f)
+    } else {
+      const f = (p - 0.75) / 0.25
+      cA.lerpColors(COLOR_STOPS.projects.a, COLOR_STOPS.contact.a, f)
+      cB.lerpColors(COLOR_STOPS.projects.b, COLOR_STOPS.contact.b, f)
+    }
 
-    // Interactive tilt toward cursor
-    g.rotation.x = damp(g.rotation.x, scrollStore.pointer.y * 0.5, 3, dt)
-    g.rotation.y = damp(g.rotation.y, scrollStore.pointer.x * 0.5, 3, dt)
+    uniforms.uBlue.value.copy(cA)
+    uniforms.uViolet.value.copy(cB)
 
-    // Slow base rotation
-    g.rotation.z += dt * 0.08
+    // Drift & rotation across sections
+    const targetX = Math.sin(p * Math.PI * 1.6) * 2.2 + scrollStore.pointer.x * 0.5
+    const targetY = -p * 1.5 + Math.sin(p * Math.PI * 2.4) * 0.5 + scrollStore.pointer.y * 0.4
+    const targetZ = -0.5 + Math.sin(p * Math.PI) * 1.2
 
-    // Floating drift
-    g.position.y = Math.sin(t * 0.25 + p * 1.5) * 0.15
-    g.position.x = Math.sin(t * 0.18 + p * 1.2) * 0.1
-    g.position.z = damp(g.position.z, -0.5 + p * 0.6, 2, dt)
+    g.position.x = damp(g.position.x, targetX, 3, dt)
+    g.position.y = damp(g.position.y, targetY, 3, dt)
+    g.position.z = damp(g.position.z, targetZ, 3, dt)
 
-    // Scale pulse with scroll
-    const s = 1 + Math.sin(p * Math.PI * 2) * 0.05 + Math.sin(t * 0.5) * 0.01
+    g.rotation.z += dt * (0.25 + p * 1.8)
+    g.rotation.y = damp(g.rotation.y, p * Math.PI * 1.2 + scrollStore.pointer.x * 0.5, 2.5, dt)
+    g.rotation.x = damp(g.rotation.x, Math.sin(t * 0.4) * 0.15 + scrollStore.pointer.y * 0.3, 2.5, dt)
+
+    const s = 1.0 + Math.sin(p * Math.PI) * 0.22 + Math.sin(t * 0.7) * 0.02
     g.scale.setScalar(damp(g.scale.x || 1, s, 3, dt))
   })
 
+  const Material = (frag, extra = {}) => (
+    <shaderMaterial vertexShader={xVertex} fragmentShader={frag} uniforms={uniforms} {...extra} />
+  )
+
   return (
-    <group ref={group} position={[0, 0, -0.5]}>
-      <mesh ref={meshRef}>
-        <torusKnotGeometry args={[1.0, 0.34, 180, 24]} />
-        <shaderMaterial
-          vertexShader={knotVertex}
-          fragmentShader={knotFragment}
-          uniforms={uniforms}
-          transparent={false}
-        />
-      </mesh>
+    <group ref={group}>
+      <group rotation={[0, 0, Math.PI * 0.3]}>
+        <RoundedBox args={beam} radius={0.16} smoothness={4}>
+          {Material(xFragment)}
+        </RoundedBox>
+      </group>
+      <group rotation={[0, 0, -Math.PI * 0.3]}>
+        <RoundedBox args={beam} radius={0.16} smoothness={4}>
+          {Material(xFragment)}
+        </RoundedBox>
+      </group>
+
+      <group rotation={[0, 0, Math.PI * 0.3]} scale={1.16}>
+        <RoundedBox args={beam} radius={0.16} smoothness={2}>
+          {Material(xHaloFragment, {
+            transparent: true,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+            side: THREE.BackSide,
+          })}
+        </RoundedBox>
+      </group>
+      <group rotation={[0, 0, -Math.PI * 0.3]} scale={1.16}>
+        <RoundedBox args={beam} radius={0.16} smoothness={2}>
+          {Material(xHaloFragment, {
+            transparent: true,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+            side: THREE.BackSide,
+          })}
+        </RoundedBox>
+      </group>
     </group>
   )
 }
 
-/* ── FLOWING PARTICLE NEBULA ───────────────────────────────────────
-     Two concentric layers of particles: a dense toroidal inner ring
-     and a sparse outer cloud. Both orbit slowly and react to scroll. ──*/
+/* ── FLOWING PARTICLE NEBULA ─────────────────────────────────────── */
 function FlowField() {
   const innerRef = useRef()
   const outerRef = useRef()
@@ -196,9 +252,7 @@ function FlowField() {
   )
 }
 
-/* ── GLOWING ENERGY SHARDS ────────────────────────────────────────
-     Small emissive octahedrons orbiting the knot at various
-     radii and speeds, with a pulsing glow.                         */
+/* ── GLOWING ENERGY SHARDS ──────────────────────────────────────── */
 function GlowOrbits({ count = 8 }) {
   const group = useRef()
   const seeds = useMemo(
@@ -252,14 +306,25 @@ function GlowOrbits({ count = 8 }) {
   )
 }
 
-/* ── DRAMATIC LIGHTING ──────────────────────────────────────────── */
+/* ── LIGHTING SCENE ─────────────────────────────────────────────── */
 function Lights() {
+  const l1 = useRef()
+  const l2 = useRef()
+
+  useFrame(() => {
+    const p = scrollStore.progress
+    if (l1.current && l2.current) {
+      l1.current.color.setHSL(0.60 + p * 0.3, 0.85, 0.5)
+      l2.current.color.setHSL(0.75 - p * 0.25, 0.85, 0.5)
+    }
+  })
+
   return (
     <>
-      <ambientLight intensity={0.3} />
-      <pointLight position={[6, 4, 6]} intensity={40} color="#3d6bff" distance={50} />
-      <pointLight position={[-6, -3, 5]} intensity={35} color="#7c3aed" distance={50} />
-      <pointLight position={[0, 6, -4]} intensity={20} color="#5d84ff" distance={40} />
+      <ambientLight intensity={0.35} />
+      <pointLight ref={l1} position={[6, 4, 6]} intensity={45} color="#3D6BFF" distance={50} />
+      <pointLight ref={l2} position={[-6, -3, 5]} intensity={40} color="#7D56F2" distance={50} />
+      <pointLight position={[0, 6, -4]} intensity={25} color="#5C4DFF" distance={40} />
     </>
   )
 }
@@ -301,7 +366,7 @@ export default function Scene() {
       <CameraRig />
       <Nebula />
       <Lights />
-      <MorphKnot />
+      <XMark />
       <FlowField />
       <GlowOrbits />
     </Canvas>

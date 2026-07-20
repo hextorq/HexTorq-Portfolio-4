@@ -1,11 +1,13 @@
 /**
  * ─────────────────────────────────────────────────────────────
- *  GLSL SHADERS
+ *  GLSL SHADERS (EXACT HEX SECTION COLOR STOPS)
  * ─────────────────────────────────────────────────────────────
- *  Custom shaders for the futuristic 3D WebGL scene:
- *   - snoise: Ashima 3D simplex noise (shared chunk)
- *   - sky:    inside-out animated nebula background sphere
- *   - knot:   morphing torus knot with vertex noise
+ *  Exact Color Map:
+ *   - Hero (0%):       #3D6BFF (electric blue) → #5C4DFF (indigo)
+ *   - Services (25%):  #5C4DFF (indigo) → #9E42F2 (violet)
+ *   - Products (50%):  #9E42F2 (violet) → #21B8DB (teal-cyan)
+ *   - Projects (75%):  #21B8DB (teal) → #3D6BFF (blue)
+ *   - Contact (100%):  #3D6BFF (blue) → #7D56F2 (violet)
  * ─────────────────────────────────────────────────────────────
  */
 
@@ -59,7 +61,7 @@ float snoise(vec3 v){
 }
 `
 
-/* ── NEBULA BACKGROUND (rendered on the inside of a big sphere) ── */
+/* ── NEBULA BACKGROUND ── */
 export const skyVertex = /* glsl */ `
 varying vec3 vPos;
 void main() {
@@ -75,7 +77,6 @@ uniform float uTime;
 uniform float uScroll;
 ${snoise}
 
-// Fractal brownian motion for soft, layered clouds.
 float fbm(vec3 p){
   float v = 0.0;
   v += 0.5000 * snoise(p); p *= 2.0;
@@ -85,7 +86,6 @@ float fbm(vec3 p){
   return v;
 }
 
-// Lightweight 2-octave FBM for coordinate warping.
 float fbmWarp(vec3 p){
   float v = 0.0;
   v += 0.500 * snoise(p); p *= 2.0;
@@ -103,34 +103,44 @@ void main(){
   float n = fbm(q + fbmWarp(q * 0.7 + uTime * 0.04));
   n = n * 0.5 + 0.5;
 
-  // A second, slower layer for depth and motion.
   float n2 = fbmWarp(q * 0.5 - vec3(uTime * 0.03, 0.0, 0.0));
   n2 = n2 * 0.5 + 0.5;
 
-  // Three energy bands so sky glows softly.
   float blueField   = smoothstep(0.30, 0.92, n);
   float violetField = smoothstep(0.42, 1.00, mix(n, n2, 0.5));
   float hot         = smoothstep(0.72, 1.00, n);
 
-  // Scroll-driven palette sequence across section stops.
+  // Exact Hex Section Stops:
+  //   0.0  Hero      → #3D6BFF (0.239, 0.420, 1.0) ↔ #5C4DFF (0.361, 0.302, 1.0)
+  //   0.25 Services  → #5C4DFF (0.361, 0.302, 1.0) ↔ #9E42F2 (0.620, 0.259, 0.949)
+  //   0.50 Products  → #9E42F2 (0.620, 0.259, 0.949) ↔ #21B8DB (0.129, 0.722, 0.859)
+  //   0.75 Projects  → #21B8DB (0.129, 0.722, 0.859) ↔ #3D6BFF (0.239, 0.420, 1.0)
+  //   1.00 Contact   → #3D6BFF (0.239, 0.420, 1.0) ↔ #7D56F2 (0.490, 0.337, 0.949)
+  vec3 cHeroA = vec3(0.239, 0.420, 1.0);
+  vec3 cHeroB = vec3(0.361, 0.302, 1.0);
+  vec3 cServB = vec3(0.620, 0.259, 0.949);
+  vec3 cProdB = vec3(0.129, 0.722, 0.859);
+  vec3 cProjB = vec3(0.239, 0.420, 1.0);
+  vec3 cContB = vec3(0.490, 0.337, 0.949);
+
   vec3 accentA, accentB;
   float s = clamp(uScroll, 0.0, 1.0) * 4.0;
   if (s < 1.0) {
     float f = smoothstep(0.0, 1.0, s);
-    accentA = mix(vec3(0.24,0.42,1.0), vec3(0.36,0.30,1.0), f);   // blue→indigo
-    accentB = mix(vec3(0.49,0.36,0.93), vec3(0.55,0.28,0.95), f); // indigo→violet
+    accentA = mix(cHeroA, cHeroB, f);
+    accentB = mix(cHeroB, cServB, f);
   } else if (s < 2.0) {
     float f = smoothstep(0.0, 1.0, s - 1.0);
-    accentA = mix(vec3(0.36,0.30,1.0), vec3(0.62,0.26,0.95), f);  // indigo→violet
-    accentB = mix(vec3(0.55,0.28,0.95), vec3(0.95,0.30,0.72), f); // violet→magenta
+    accentA = mix(cHeroB, cServB, f);
+    accentB = mix(cServB, cProdB, f);
   } else if (s < 3.0) {
     float f = smoothstep(0.0, 1.0, s - 2.0);
-    accentA = mix(vec3(0.62,0.26,0.95), vec3(0.13,0.72,0.86), f); // violet→teal
-    accentB = mix(vec3(0.95,0.30,0.72), vec3(0.24,0.50,1.0), f);  // magenta→blue
+    accentA = mix(cServB, cProdB, f);
+    accentB = mix(cProdB, cProjB, f);
   } else {
     float f = smoothstep(0.0, 1.0, s - 3.0);
-    accentA = mix(vec3(0.13,0.72,0.86), vec3(0.24,0.42,1.0), f);  // teal→blue
-    accentB = mix(vec3(0.24,0.50,1.0), vec3(0.49,0.34,0.95), f);  // blue→violet
+    accentA = mix(cProdB, cProjB, f);
+    accentB = mix(cProjB, cContB, f);
   }
 
   vec3 uBaseCol = vec3(0.02, 0.03, 0.06);
@@ -139,11 +149,9 @@ void main(){
   col += accentB * violetField * 1.05;
   col += vec3(0.55, 0.68, 1.0) * hot * 0.6;
 
-  // Soft central glow for depth
   float centerGlow = pow(1.0 - abs(dir.y), 3.0);
   col += mix(accentA, accentB, 0.5) * centerGlow * (0.18 + 0.25 * uScroll);
 
-  // Vertical falloff
   float grad = smoothstep(-1.0, 1.0, dir.y);
   col *= mix(0.7, 1.25, grad);
 
@@ -153,74 +161,56 @@ void main(){
 }
 `
 
-/* ── MORPHING TORUS KNOT ───────────────────────────────────────────
-     Vertex displacement with simplex noise creates an organic, living
-     surface. Scroll controls morph intensity; pointer creates a bulge. ──*/
-export const knotVertex = /* glsl */ `
+/* ── THE "X" MOTIF SHADERS ──────────────────────────────────────── */
+export const xVertex = /* glsl */ `
 precision highp float;
-uniform float uTime;
-uniform float uScroll;
-uniform vec3  uPointer;
-uniform float uScale;
-varying vec3  vNormal;
-varying vec3  vView;
-varying float vNoise;
-${snoise}
-
+varying vec3 vNormal;
+varying vec3 vView;
+varying vec3 vWorld;
 void main(){
-  vec3 pos = position;
-  float t = uTime * 0.15;
-
-  // 3-octave noise for organic morphing
-  float n  = snoise(pos * 1.8 + t);
-  n       += 0.5  * snoise(pos * 3.5 - t * 1.2);
-  n       += 0.25 * snoise(pos * 7.0 + t * 0.8);
-
-  // Displacement intensity grows with scroll
-  float intensity = 0.06 + uScroll * 0.14;
-  // Pointer bulge — follow the cursor
-  float bulge = dot(normalize(pos), normalize(uPointer + 0.0001)) * 0.04;
-  float displacement = (n * 0.5 + 0.5) * intensity + bulge;
-
-  vec3 newPos = pos + normal * displacement;
-  vNoise = n;
-
-  vNormal = normalize(normalMatrix * normal);
-  vec4 mv = modelViewMatrix * vec4(newPos, 1.0);
-  vView = -mv.xyz;
-  gl_Position = projectionMatrix * mv;
+  vec4 wp = modelMatrix * vec4(position, 1.0);
+  vWorld  = wp.xyz;
+  vNormal = normalize(mat3(modelMatrix) * normal);
+  vView   = cameraPosition - wp.xyz;
+  gl_Position = projectionMatrix * viewMatrix * wp;
 }
 `
 
-export const knotFragment = /* glsl */ `
+export const xFragment = /* glsl */ `
 precision highp float;
-uniform float uTime;
-uniform float uScroll;
 uniform vec3  uBlue;
 uniform vec3  uViolet;
 varying vec3  vNormal;
 varying vec3  vView;
-varying float vNoise;
-
+varying vec3  vWorld;
 void main(){
   vec3 N = normalize(vNormal);
   vec3 V = normalize(vView);
+  float fres = pow(1.0 - clamp(dot(N, V), 0.0, 1.0), 2.2);
 
-  // Fresnel rim — bright at edges, dark at center
-  float fresnel = pow(1.0 - clamp(dot(N, V), 0.0, 1.0), 2.6);
+  float t = clamp(vWorld.x * 0.32 + 0.5, 0.0, 1.0);
+  vec3 base = mix(uBlue, uViolet, t);
 
-  // Gradient: blue→violet driven by noise + scroll
-  float mixVal = clamp(vNoise * 0.8 + 0.5 + uScroll * 0.3, 0.0, 1.0);
-  vec3 base = mix(uBlue, uViolet, mixVal);
-
-  // Energy pulse rippling across the surface
-  float pulse = sin(uTime * 0.5 + vNoise * 4.0) * 0.5 + 0.5;
-
-  vec3 col = base * 0.12;
-  col += fresnel * base * 2.6;
-  col += pow(fresnel, 4.0) * vec3(1.6);
-  col += base * pulse * 0.15;
-
+  vec3 col = base * 0.30;
+  col += fres * base * 2.6;
+  col += pow(fres, 3.0) * 1.3;
   gl_FragColor = vec4(col, 1.0);
+}
+`
+
+export const xHaloFragment = /* glsl */ `
+precision highp float;
+uniform vec3  uBlue;
+uniform vec3  uViolet;
+varying vec3  vNormal;
+varying vec3  vView;
+varying vec3  vWorld;
+void main(){
+  vec3 N = normalize(vNormal);
+  vec3 V = normalize(vView);
+  float fres = pow(1.0 - clamp(dot(N, V), 0.0, 1.0), 2.0);
+  float t = clamp(vWorld.x * 0.32 + 0.5, 0.0, 1.0);
+  vec3 col = mix(uBlue, uViolet, t);
+  gl_FragColor = vec4(col, fres * 0.5);
 }
 `
