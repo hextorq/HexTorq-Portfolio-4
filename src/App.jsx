@@ -23,6 +23,7 @@ import { scrollStore } from './three/scrollStore'
 import { marqueeWords } from './content'
 import { currentSectionFromPath, scrollToSection, normalizePath } from './routeUtils'
 import { ROUTE_SEO_MAP } from './seo/routeSeo'
+import { trackClarityPageView } from './utils/clarity'
 
 const hasPrerenderedHtml = () =>
   typeof document !== 'undefined' &&
@@ -81,6 +82,7 @@ export default function App({ prerender = false }) {
       const section = currentSectionFromPath()
       if (section) window.setTimeout(() => scrollToSection(section, lenisRef), 80)
       updateMetaData()
+      trackClarityPageView(normalizePath(window.location.pathname))
     }
 
     scrollToCurrentRoute()
