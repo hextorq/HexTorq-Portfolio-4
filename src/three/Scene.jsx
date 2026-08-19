@@ -252,59 +252,6 @@ function FlowField() {
   )
 }
 
-/* ── GLOWING ENERGY SHARDS ──────────────────────────────────────── */
-function GlowOrbits({ count = 8 }) {
-  const group = useRef()
-  const seeds = useMemo(
-    () =>
-      Array.from({ length: count }, (_, i) => ({
-        radius: 2.0 + (i % 2) * 0.8,
-        speed: 0.2 + (i % 3) * 0.07,
-        phase: (i / count) * Math.PI * 2,
-        tilt: (i - count / 2) * 0.2,
-      })),
-    [count]
-  )
-
-  useFrame((state, dt) => {
-    const g = group.current
-    if (!g) return
-    const t = state.clock.elapsedTime
-    g.rotation.x = damp(g.rotation.x, scrollStore.progress * 0.8, 2.5, dt)
-    g.children.forEach((m, i) => {
-      const s = seeds[i]
-      const a = t * s.speed + s.phase
-      m.position.set(
-        Math.cos(a) * s.radius,
-        Math.sin(a * 0.8) * s.radius * 0.3 + s.tilt,
-        Math.sin(a) * s.radius * 0.7
-      )
-      m.rotation.x += dt * 0.5
-      m.rotation.y += dt * 0.3 + scrollStore.progress * 0.1
-
-      const pulse = 0.5 + Math.sin(t * 1.2 + s.phase) * 0.5
-      m.material.emissiveIntensity = 0.6 + pulse * 1.2
-    })
-  })
-
-  return (
-    <group ref={group}>
-      {seeds.map((s, i) => (
-        <mesh key={i} scale={0.08 + (i % 4) * 0.015}>
-          <octahedronGeometry args={[1, 0]} />
-          <meshStandardMaterial
-            color={i % 2 === 0 ? '#3d6bff' : '#7c3aed'}
-            emissive={i % 2 === 0 ? '#3d6bff' : '#7c3aed'}
-            emissiveIntensity={1.2}
-            roughness={0.2}
-            metalness={0.9}
-            flatShading
-          />
-        </mesh>
-      ))}
-    </group>
-  )
-}
 
 /* ── LIGHTING SCENE ─────────────────────────────────────────────── */
 function Lights() {
@@ -368,7 +315,6 @@ export default function Scene() {
       <Lights />
       <XMark />
       <FlowField />
-      <GlowOrbits />
     </Canvas>
   )
 }
