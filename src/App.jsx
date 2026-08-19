@@ -3,8 +3,10 @@ import Preloader from './components/Preloader'
 import Navbar from './components/Navbar'
 import Cursor from './components/Cursor'
 import TemplateSwitcher from './components/TemplateSwitcher'
+import GeometricBackground from './components/GeometricBackground'
 import { ScrollProgress, Marquee } from './components/Chrome'
 import Scene from './three/Scene'
+import { useFull3DBackground } from './browser'
 import {
   Hero,
   Story,
@@ -28,8 +30,15 @@ const hasPrerenderedHtml = () =>
 
 export default function App({ prerender = false }) {
   const [ready, setReady] = useState(prerender || hasPrerenderedHtml())
+  const [bgMode, setBgMode] = useState('webgl')
 
   const lenisRef = useSmoothScroll(ready)
+
+  // Edge keeps the full 3D WebGL scene; Chrome (and others) get the
+  // lightweight CSS background. Swapped after mount to match prerendered HTML.
+  useEffect(() => {
+    setBgMode(useFull3DBackground() ? 'webgl' : 'css')
+  }, [])
 
   useEffect(() => {
     document.documentElement.style.overflow = ready ? '' : 'hidden'
@@ -87,8 +96,8 @@ export default function App({ prerender = false }) {
       <ScrollProgress />
       <TemplateSwitcher />
 
-      {/* Fixed WebGL background */}
-      <Scene />
+      {/* Fixed background — full 3D WebGL on Edge, lightweight CSS elsewhere */}
+      {bgMode === 'webgl' ? <Scene /> : <GeometricBackground />}
 
       {/* Readability scrim */}
       <div className="scrim" aria-hidden="true" />
