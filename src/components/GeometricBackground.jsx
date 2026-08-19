@@ -1,6 +1,10 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './GeometricBackground.css';
+
+gsap.registerPlugin(ScrollTrigger);
 
 function ElegantShape({
   delay = 0,
@@ -58,8 +62,45 @@ function ElegantShape({
 }
 
 export default function GeometricBackground() {
+  const root = useRef(null)
+
+  /* Gentle GSAP scroll parallax on the shapes — Chrome-only, since this
+     component only renders for non-Edge browsers. */
+  useEffect(() => {
+    const el = root.current
+    if (!el) return
+
+    const speeds = [40, -70, 90, -35, 55]
+    const timers = []
+    const ctx = gsap.context(() => {
+      const shapes = el.querySelectorAll('.elegant-shape-wrapper')
+      const delay = 2500 // wait for the framer-motion entrance to settle
+
+      shapes.forEach((s, i) => {
+        const t = setTimeout(() => {
+          gsap.to(s, {
+            y: () => speeds[i % speeds.length],
+            ease: 'none',
+            scrollTrigger: {
+              trigger: document.body,
+              start: 'top top',
+              end: 'bottom bottom',
+              scrub: 1.2,
+            },
+          })
+        }, delay)
+        timers.push(t)
+      })
+    }, el)
+
+    return () => {
+      ctx.revert()
+      timers.forEach(clearTimeout)
+    }
+  }, [])
+
   return (
-    <div className="geometric-bg-container">
+    <div className="geometric-bg-container" ref={root}>
       {/* Background gradients */}
       <div className="geometric-bg-gradient-overlay" />
 
