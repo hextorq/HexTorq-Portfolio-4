@@ -20,12 +20,11 @@ export default function Cursor() {
     if (window.matchMedia('(pointer: coarse)').matches) return
     document.body.classList.add('has-custom-cursor')
 
-    // Ring leads, dot trails far behind with a long, slow catch-up —
-    // the gap shrinks as it approaches, then fits into the ring center.
-    const ringX = gsap.quickTo(ring.current, 'x', { duration: 0.3, ease: 'power3' })
-    const ringY = gsap.quickTo(ring.current, 'y', { duration: 0.3, ease: 'power3' })
-    const dotX = gsap.quickTo(dot.current, 'x', { duration: 1.1, ease: 'power2.out' })
-    const dotY = gsap.quickTo(dot.current, 'y', { duration: 1.1, ease: 'power2.out' })
+    // Responsive, snappy follow with smooth fluid easing
+    const ringX = gsap.quickTo(ring.current, 'x', { duration: 0.22, ease: 'power3.out' })
+    const ringY = gsap.quickTo(ring.current, 'y', { duration: 0.22, ease: 'power3.out' })
+    const dotX = gsap.quickTo(dot.current, 'x', { duration: 0.08, ease: 'power2.out' })
+    const dotY = gsap.quickTo(dot.current, 'y', { duration: 0.08, ease: 'power2.out' })
 
     let current = null
 
