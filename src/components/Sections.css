@@ -56,6 +56,7 @@
 .hero-inner {
   position: relative;
   max-width: 1000px;
+  width: 100%;
 }
 /* Soft dark scrim behind hero text so it reads over the bright nebula */
 .hero-inner::before {
@@ -121,12 +122,19 @@
 }
 
 .hero-sub {
-  font-size: clamp(1.08rem, 1.7vw, 1.32rem);
+  font-size: clamp(1rem, 1.7vw, 1.32rem);
   color: #cdd4e6;
   max-width: 58ch;
   line-height: 1.65;
   margin-bottom: 2.6rem;
   text-shadow: 0 2px 20px rgba(0, 0, 0, 0.6);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
 }
 
 .scroll-hint {
@@ -457,6 +465,7 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+  text-align: left;
   border: 1px solid var(--line);
   border-radius: 22px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
@@ -506,16 +515,33 @@
     align-items: stretch;
     height: auto;
     width: 100%;
-    gap: 1.2rem;
-    padding: clamp(90px, 14vh, 160px) var(--pad-x);
+    gap: 1rem;
+    padding: clamp(50px, 8vh, 120px) var(--pad-x);
   }
   .process-intro {
     width: 100%;
+    padding-right: 0;
   }
   .process-step {
     width: 100%;
     height: auto;
-    min-height: 240px;
+    min-height: 180px;
+    text-align: left;
+  }
+}
+
+@media (max-width: 480px) {
+  .process-track {
+    padding-top: 56px;
+    padding-bottom: 56px;
+    gap: 1rem;
+  }
+  .process-step {
+    min-height: 180px;
+  }
+  .process-heading {
+    font-size: clamp(1.8rem, 7vw, 2.6rem);
+    margin-bottom: 1rem;
   }
 }
 
@@ -677,10 +703,19 @@
 .contact-meta a:hover {
   color: var(--cyan);
 }
+.contact-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: color 0.25s ease;
+}
+.contact-location:hover {
+  color: var(--cyan);
+}
 
 .footer {
   position: relative;
-  padding: clamp(4rem, 8vw, 7rem) var(--pad-x) clamp(1.6rem, 3vw, 2.2rem);
+  padding: clamp(4rem, 8vw, 7rem) var(--pad-x) 0;
   /* Solid dark base — the contact section above already fades to black. */
   background: #000;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
@@ -704,6 +739,19 @@
 .footer-socials {
   display: flex;
   gap: 0.7rem;
+  flex-wrap: wrap;
+}
+.footer-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 1rem;
+  font-size: 0.88rem;
+  color: #a8b4d0;
+  transition: color 0.25s ease;
+}
+.footer-location:hover {
+  color: #fff;
 }
 .footer-social {
   width: 42px;
@@ -773,7 +821,8 @@
   color: transparent;
   -webkit-text-stroke: 2px rgba(255, 255, 255, 0.1);
   text-shadow: 0 0 60px rgba(61, 107, 255, 0.15), 0 0 120px rgba(61, 107, 255, 0.08);
-  margin: clamp(1rem, 3vw, 2rem) 0;
+  margin: 0;
+  padding: clamp(0.4rem, 1vw, 0.8rem) 0;
   user-select: none;
 }
 
@@ -783,7 +832,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding-top: 1.6rem;
+  padding: 1rem 0 1.2rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 .footer-copy {
@@ -817,18 +866,29 @@
 }
 
 /* ── RESPONSIVE ───────────────────────────────────────────────── */
+
+/* ── Tablet: 1024px ── */
 @media (max-width: 1024px) {
   .svc-grid {
     grid-template-columns: repeat(2, 1fr);
   }
   .proj-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
   .eco-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+  .footer-top {
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+  }
+  .footer-lead {
+    grid-column: 1 / -1;
+    max-width: 100%;
+  }
 }
 
+/* ── Small tablet / large phone: 900px ── */
 @media (max-width: 900px) {
   .story-grid {
     grid-template-columns: 1fr;
@@ -836,24 +896,133 @@
   .svc-grid {
     grid-template-columns: 1fr;
   }
+  .proj-grid {
+    grid-template-columns: 1fr;
+  }
   .prod-card,
   .prod-card.is-reverse {
     grid-template-columns: 1fr;
     direction: ltr;
+    gap: 2rem;
+  }
+  .prod-features {
+    grid-template-columns: 1fr 1fr;
+  }
+  .hero-title {
+    font-size: clamp(2.4rem, 8vw, 4.8rem);
+  }
+}
+
+/* ── Phone: 640px ── */
+@media (max-width: 640px) {
+  .hero-title {
+    font-size: clamp(2rem, 9vw, 3.6rem);
+  }
+  .hero-sub {
+    font-size: 1rem;
+    max-width: 100%;
+  }
+  .section-heading {
+    font-size: clamp(1.8rem, 7vw, 2.6rem);
+  }
+  .section-sub {
+    font-size: 1rem;
+    max-width: 100%;
+  }
+  .svc-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .svc-card {
+    padding: 1.4rem;
+  }
+  .proj-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .eco-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .prod-card {
+    gap: 1.6rem;
+  }
+  .prod-visual {
+    aspect-ratio: 16 / 9;
   }
   .prod-features {
     grid-template-columns: 1fr;
   }
+  .story-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+  .stat {
+    padding: 1.2rem;
+  }
+  .stat-value {
+    font-size: clamp(1.6rem, 6vw, 2rem);
+  }
+  .contact-heading {
+    font-size: clamp(2rem, 8vw, 3.5rem);
+  }
+  .footer-top {
+    grid-template-columns: 1fr;
+  }
+  .footer-lead {
+    grid-column: auto;
+    max-width: 100%;
+  }
+  .footer-wordmark {
+    font-size: clamp(3rem, 18vw, 8rem);
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.1);
+  }
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+  .contact-meta {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: center;
+  }
+  .btn-lg {
+    padding: 1rem 1.8rem;
+    font-size: 0.98rem;
+  }
+  .scroll-hint {
+    display: none;
+  }
 }
 
-@media (max-width: 560px) {
+/* ── Tiny phone: 480px ── */
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: clamp(1.9rem, 9.5vw, 3rem);
+    letter-spacing: -0.03em;
+  }
   .eco-grid {
     grid-template-columns: 1fr;
+  }
+  .svc-points li {
+    font-size: 0.78rem;
+  }
+  .story-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+  .footer-legal {
+    flex-wrap: wrap;
+    gap: 0.8rem;
+  }
+  .process-intro {
+    width: 100%;
+    padding-right: 0;
   }
 }
 
 /* ── FAQS STYLING ─────────────────────────────────────────────── */
 .faqs {
+  padding-top: clamp(2rem, 5vw, 4.5rem);
   padding-bottom: clamp(4rem, 8vw, 7rem);
 }
 .faq-list {

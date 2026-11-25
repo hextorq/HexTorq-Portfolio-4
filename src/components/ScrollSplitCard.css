@@ -4,7 +4,7 @@
 
 .ssc-head {
   text-align: center;
-  padding: clamp(4rem, 9vw, 7rem) var(--pad-x) 0;
+  padding: clamp(3rem, 6vw, 5rem) var(--pad-x) 0;
 }
 
 .ssc-head .section-heading {
@@ -15,7 +15,7 @@
 .ssc-scroll {
   position: relative;
   width: 100%;
-  height: 300vh;
+  height: 180vh;
 }
 
 .ssc-sticky {
@@ -32,7 +32,7 @@
 
 .ssc-start-hint {
   position: absolute;
-  top: 20%;
+  top: max(82px, calc(50% - 245px));
   left: 0;
   right: 0;
   text-align: center;
@@ -161,7 +161,7 @@
 
 .ssc-end-hint {
   position: absolute;
-  bottom: 20%;
+  top: calc(50% + 175px);
   left: 0;
   right: 0;
   text-align: center;
@@ -178,16 +178,71 @@
 }
 
 @media (max-width: 720px) {
+  .ssc-scroll {
+    height: 135vh;
+  }
+  .ssc-sticky {
+    height: 75vh;
+    top: 12vh;
+  }
+  .ssc-start-hint {
+    top: max(12px, calc(50% - 200px));
+  }
+  .ssc-end-hint {
+    top: calc(50% + 140px);
+  }
   .ssc-row {
-    height: 320px;
+    height: 290px;
+    max-width: 100%;
+    padding: 0 0.5rem;
   }
   .ssc-back {
-    padding: 1.2rem;
+    padding: 1.1rem 0.85rem;
   }
   .ssc-title {
-    font-size: 1.1rem;
+    font-size: 1.05rem;
   }
   .ssc-desc {
     font-size: 0.78rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .ssc-scroll {
+    height: 125vh;
+  }
+  .ssc-sticky {
+    height: 68vh;
+    top: 14vh;
+  }
+  .ssc-start-hint {
+    top: max(8px, calc(50% - 165px));
+  }
+  .ssc-end-hint {
+    top: calc(50% + 125px);
+  }
+  .ssc-row {
+    height: 250px;
+    gap: 0.35rem;
+  }
+  .ssc-title {
+    font-size: clamp(0.74rem, 3.5vw, 0.92rem);
+  }
+  .ssc-tag {
+    font-size: 0.5rem;
+    padding: 0.2rem 0.45rem;
+  }
+  .ssc-desc {
+    display: none;
+  }
+  .ssc-head .section-heading {
+    font-size: clamp(1.6rem, 7vw, 2.2rem);
+  }
+  .ssc-back {
+    padding: 0.85rem 0.55rem;
+  }
+  .ssc-icon {
+    width: 34px;
+    height: 34px;
   }
 }

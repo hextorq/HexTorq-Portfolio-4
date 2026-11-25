@@ -61,10 +61,11 @@ export default function ScrollSplitCard() {
   const shadowOpacity = useTransform(scrollYProgress, [0, 0.18], [0, 0.4])
   const boxShadow = useMotionTemplate`inset 0 1px 1px rgba(255, 255, 255, ${borderOpacity}), inset 0 -24px 48px rgba(0, 0, 0, ${shadowOpacity}), 0 25px 50px -12px rgba(0, 0, 0, ${shadowOpacity})`
 
-  const cardsY = useTransform(scrollYProgress, [0.82, 1], [0, -200])
+  // Cards rise slightly then hold — no dramatic fly-off so no dead scroll space
+  const cardsY = useTransform(scrollYProgress, [0.82, 1], [0, -60])
 
-  const textOpacity = useTransform(scrollYProgress, [0.82, 1], [0, 1])
-  const textY = useTransform(scrollYProgress, [0.82, 1], [40, 0])
+  const textOpacity = useTransform(scrollYProgress, [0.82, 0.95], [0, 1])
+  const textY = useTransform(scrollYProgress, [0.82, 0.95], [30, 0])
 
   const startTextOpacity = useTransform(scrollYProgress, [0, 0.08], [1, 0])
   const startTextY = useTransform(scrollYProgress, [0, 0.08], [0, 20])

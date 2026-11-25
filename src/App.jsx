@@ -30,7 +30,9 @@ const hasPrerenderedHtml = () =>
   document.getElementById('root')?.dataset.prerendered === 'true'
 
 export default function App({ prerender = false }) {
-  const [ready, setReady] = useState(prerender || hasPrerenderedHtml())
+  // Always show preloader on first client load — ignore prerendered flag for
+  // the intro animation so it runs on live (Vercel SSG) exactly like local dev.
+  const [ready, setReady] = useState(prerender ? true : false)
   const [bgMode, setBgMode] = useState('webgl')
 
   const lenisRef = useSmoothScroll(ready)
@@ -60,14 +62,35 @@ export default function App({ prerender = false }) {
     }
   }, [ready])
 
-  // Update dynamic document title & canonical based on current route
+  // Update dynamic document title, meta descriptions & canonical based on current route
   useEffect(() => {
-    if (!ready || prerender || typeof window === 'undefined') return
+    if (prerender || typeof window === 'undefined') return
+
+    const upsertMeta = (attr, key, content) => {
+      if (!content) return
+      let el = document.querySelector(`meta[${attr}="${key}"]`)
+      if (!el) {
+        el = document.createElement('meta')
+        el.setAttribute(attr, key)
+        document.head.appendChild(el)
+      }
+      el.setAttribute('content', content)
+    }
+
     const updateMetaData = () => {
       const currentPath = normalizePath(window.location.pathname)
       const seo = ROUTE_SEO_MAP[currentPath] || ROUTE_SEO_MAP['/']
       if (seo) {
         document.title = seo.title
+        upsertMeta('name', 'description', seo.description)
+        upsertMeta('name', 'keywords', seo.keywords)
+        upsertMeta('property', 'og:title', seo.title)
+        upsertMeta('property', 'og:description', seo.description)
+        upsertMeta('property', 'og:url', seo.canonical)
+        upsertMeta('name', 'twitter:title', seo.title)
+        upsertMeta('name', 'twitter:description', seo.description)
+        upsertMeta('name', 'twitter:url', seo.canonical)
+
         let link = document.querySelector("link[rel='canonical']")
         if (!link) {
           link = document.createElement('link')
@@ -78,10 +101,16 @@ export default function App({ prerender = false }) {
       }
     }
 
+    updateMetaData()
+    window.addEventListener('popstate', updateMetaData)
+    return () => window.removeEventListener('popstate', updateMetaData)
+  }, [prerender])
+
+  useEffect(() => {
+    if (!ready || prerender || typeof window === 'undefined') return
     const scrollToCurrentRoute = () => {
       const section = currentSectionFromPath()
       if (section) window.setTimeout(() => scrollToSection(section, lenisRef), 80)
-      updateMetaData()
       trackClarityPageView(normalizePath(window.location.pathname))
     }
 

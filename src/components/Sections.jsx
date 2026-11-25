@@ -43,12 +43,17 @@ function MaskHeading({ text, className = '', as = 'h2' }) {
   useEffect(() => {
     if (!ref.current) return
     const ctx = gsap.context(() => {
+      const isMobile = window.innerWidth <= 820
       gsap.from(ref.current.querySelectorAll('.word'), {
         yPercent: 118,
         duration: 1.1,
         ease: 'expo.out',
         stagger: 0.07,
-        scrollTrigger: { trigger: ref.current, start: 'top 84%', once: true },
+        scrollTrigger: {
+          trigger: ref.current,
+          start: isMobile ? 'top 95%' : 'top 84%',
+          once: true,
+        },
       })
     }, ref)
     return () => ctx.revert()
@@ -146,6 +151,7 @@ export function Story() {
   useEffect(() => {
     if (!statsRef.current) return
     const ctx = gsap.context(() => {
+      const isMobile = window.innerWidth <= 820
       const statCards = statsRef.current.querySelectorAll('.stat')
       gsap.from(statCards, {
         y: 40,
@@ -155,7 +161,7 @@ export function Story() {
         ease: 'power3.out',
         scrollTrigger: {
           trigger: statsRef.current,
-          start: 'top 82%',
+          start: isMobile ? 'top 98%' : 'top 72%',
           once: true,
           onEnter: () => {
             gsap.utils.toArray('.stat-value').forEach((el) => {
@@ -220,6 +226,7 @@ export function Services() {
   useEffect(() => {
     if (!cardsRef.current) return
     const ctx = gsap.context(() => {
+      const isMobile = window.innerWidth <= 820
       const cards = cardsRef.current.querySelectorAll('.svc-card')
       gsap.from(cards, {
         y: 60,
@@ -230,7 +237,7 @@ export function Services() {
         ease: 'power3.out',
         scrollTrigger: {
           trigger: cardsRef.current,
-          start: 'top 80%',
+          start: isMobile ? 'top 98%' : 'top 72%',
           once: true,
         },
       })
@@ -274,6 +281,7 @@ export function Products() {
   useEffect(() => {
     if (!cardsRef.current) return
     const ctx = gsap.context(() => {
+      const isMobile = window.innerWidth <= 820
       const cards = cardsRef.current.querySelectorAll('.prod-card')
       gsap.from(cards, {
         y: 80,
@@ -283,7 +291,7 @@ export function Products() {
         ease: 'power3.out',
         scrollTrigger: {
           trigger: cardsRef.current,
-          start: 'top 75%',
+          start: isMobile ? 'top 98%' : 'top 72%',
           once: true,
         },
         onComplete: () => {
@@ -360,6 +368,7 @@ export function Projects() {
   useEffect(() => {
     if (!cardsRef.current) return
     const ctx = gsap.context(() => {
+      const isMobile = window.innerWidth <= 820
       const cards = cardsRef.current.querySelectorAll('.proj-card')
       gsap.from(cards, {
         y: 50,
@@ -370,7 +379,7 @@ export function Projects() {
         ease: 'power3.out',
         scrollTrigger: {
           trigger: cardsRef.current,
-          start: 'top 78%',
+          start: isMobile ? 'top 98%' : 'top 72%',
           once: true,
         },
       })
@@ -412,6 +421,7 @@ export function Process() {
   useEffect(() => {
     if (!track.current) return
     const ctx = gsap.context(() => {
+      const isMobile = window.innerWidth <= 820
       const steps = track.current.querySelectorAll('.process-step')
       gsap.from(steps, {
         y: 40,
@@ -421,7 +431,7 @@ export function Process() {
         ease: 'power3.out',
         scrollTrigger: {
           trigger: track.current,
-          start: 'top 78%',
+          start: isMobile ? 'top 98%' : 'top 72%',
           once: true,
         },
       })
@@ -575,7 +585,12 @@ export function Contact() {
 
         <div className="contact-meta reveal">
           <a href={`mailto:${brand.email}`} aria-label="Send email to Hextorq">{brand.email}</a>
-          <span>{brand.location}</span>
+          <a href={brand.mapsHref} target="_blank" rel="noopener noreferrer" className="contact-location" aria-label="View Hextorq location on Google Maps">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15" aria-hidden="true" style={{flexShrink:0}}>
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+            </svg>
+            {brand.location}
+          </a>
         </div>
       </div>
 
@@ -591,6 +606,12 @@ export function Contact() {
                   </a>
                 ))}
               </div>
+              <a href={brand.mapsHref} target="_blank" rel="noopener noreferrer" className="footer-location" aria-label="View Hextorq location on Google Maps">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14" aria-hidden="true">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                </svg>
+                {brand.location}
+              </a>
             </div>
 
             {footer.columns.map((col) => (

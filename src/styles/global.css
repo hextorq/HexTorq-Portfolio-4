@@ -32,7 +32,7 @@
 
   /* Layout */
   --maxw: 1280px;
-  --pad-x: clamp(20px, 5vw, 80px);
+  --pad-x: clamp(16px, 5vw, 80px);
 }
 
 *,
@@ -67,8 +67,9 @@ html.lenis body {
   overflow: hidden;
 }
 
+html,
 body {
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 a {
@@ -133,12 +134,20 @@ button {
 /* Shared layout helpers */
 .section {
   position: relative;
-  padding: clamp(90px, 14vh, 180px) var(--pad-x);
+  padding: clamp(60px, 10vh, 180px) var(--pad-x);
 }
 .container {
   width: 100%;
   max-width: var(--maxw);
   margin: 0 auto;
+}
+
+/* Mobile: tighten section padding further */
+@media (max-width: 480px) {
+  .section {
+    padding-top: 56px;
+    padding-bottom: 56px;
+  }
 }
 
 .eyebrow {

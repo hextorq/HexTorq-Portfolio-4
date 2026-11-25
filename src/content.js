@@ -15,7 +15,8 @@ export const brand = {
   taglineWords: ['Code', 'Innovate', 'Elevate'],
   email: 'hello@hextorq.tech',
   domain: 'hextorq.tech',
-  location: 'India · Remote-first',
+  location: 'Our Location',
+  mapsHref: 'https://share.google/UsiaoEdqucxft5IVL',
   socials: [
     { label: 'X', href: 'https://twitter.com/hextorq' },
     { label: 'Instagram', href: 'https://instagram.com/hextorq' },
